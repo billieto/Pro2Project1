@@ -56,7 +56,7 @@ void print_board(char **ship, int n, int m); // unfinished
 void fill_board(char ***ship, int n, int m, r2d2 r2, stroop *army, int storm);
 void inisialize_board(char ***ship, int n, int m);
 void free_all(char ***ship, stroop **army, obs **objects, char **moveset, int n);
-void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2, stroop *army, int storm, obs *objects, int obstacles);
+void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2, stroop *army, int storm, obs *objects, int obstacles, int help);
 char read_input(char **token, char **token2, char **moveset, int *size);
 int random_number(int n);
 int read_text(char str[], int size, int flag); // from mr. Tselika's book
@@ -64,7 +64,7 @@ int read_text(char str[], int size, int flag); // from mr. Tselika's book
 
 int main(void)
 {
-    int n, m, diff, i, j, k, storm = 2, obstacles, level = 0, len, flag = 0, captured = 0, help = 0;
+    int i, n, m, diff, storm = 2, obstacles, level = 0, len, flag = 0, captured = 0, help = 0;
     char **ship; // this is the 2D array used to play the game
     char *moveset; // the moveset leia will perform in the game
     char *cords1, *cords2; // cords1 for the object the player wants to move and cords2 for the destination
@@ -108,6 +108,7 @@ int main(void)
     {
         flag = 0;
         level++;
+        help = 0;
         if(r2.found == 1 || play_again == 'y' || play_again == 'Y')
         {
             play_again = 0;
@@ -132,7 +133,7 @@ int main(void)
 
             generate_leia(&ship, &leia, n, m);
         }
-        cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles);
+        cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
         print_board(ship, n, m);
 
         choice = read_input(&cords1, &cords2, &moveset, &len);
@@ -152,7 +153,7 @@ int main(void)
              break;
 
             case 'h': // if the player want to use Master Yoda's (<3) help
-
+                help = 1;
              break;
 
             case 'f': // if the player want to use the force
@@ -178,7 +179,7 @@ int main(void)
                 }
 
                 fill_board(&ship, n, m, r2, army, storm);
-                cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles);
+                cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
                 
                 captured = move_vader(&ship, &vader, leia.x, leia.y);
                 if(captured)
@@ -191,14 +192,14 @@ int main(void)
                 {
                     break;
                 }
-            }
 
-            free(moveset);
+                free(moveset);
+            }
         }
         else
         {
             fill_board(&ship, n, m, r2, army, storm);
-            cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles);
+            cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
 
             captured = move_vader(&ship, &vader, leia.x, leia.y);
             if(captured)
@@ -259,6 +260,7 @@ void print_board(char **ship, int n, int m)
     char c;
 
     // Print top indicators
+    puts("\n");
     printf("\t     ");
     for (c = 'A'; c < 'A' + m; c++) 
     {
@@ -404,7 +406,7 @@ void generate_level_dependant(int level, int n, int m, int *storm, int *obstacle
 
 void generate_stormtroopers(char ***ship, stroop **army, int n, int m, int storm)
 {
-    int i, x, y, dir;
+    int i, x, y;
 
     *army = (stroop *)malloc(storm * sizeof(stroop));
     check_malloc(*army);
@@ -494,7 +496,7 @@ void generate_obsticles(char ***ship, obs **objects, int n, int m, int obstacles
         x = random_number(n);
         y = random_number(m);
 
-        while((*ship)[x][y] == 'X' || (*ship)[x][y] == 'D')
+        while((*ship)[x][y] == 'X' || (*ship)[x][y] == 'D' || (*ship)[x][y] == '@')
         {
             x = random_number(n);
             y = random_number(m);
@@ -512,7 +514,7 @@ void generate_obsticles(char ***ship, obs **objects, int n, int m, int obstacles
 
 void generate_leia(char ***ship, princess *leia, int n, int m)
 {
-    int x, y, i, j;
+    int x, y;
 
     x = random_number(n);
     y = random_number(m);
@@ -738,84 +740,88 @@ int move_vader(char ***ship, darth *vader, int leia_x, int leia_y)
     (*ship)[(*vader).x][(*vader).y] = 'D';
 }
 
-void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2, stroop *army, int storm, obs *objects, int obstacles)
+void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2, stroop *army, int storm, obs *objects, int obstacles, int help)
 {
     int i, j;
-
-    for(i = 0; i < n; i++)
+    switch(help)
     {
-        if((*ship)[i][leia.y] == 'D')
-        {
-            continue;
-        }
-        else if((*ship)[i][leia.y] == 'L')
-        {
-            continue;
-        }
-        else if((*ship)[i][leia.y] == 'X')
-        {
-            continue;
-        }
-        else if((i == r2.x && leia.y == r2.y))
-        {
-            (*ship)[i][leia.y] = 'R';
-            continue;
-        }
-
-        for(j = 0; j < storm; j++)
-        {
-            if(army[j].x == i && army[j].y == leia.y)
+        case 0:
+            for(i = 0;i < n; i++)
             {
-                (*ship)[i][leia.y] = '@';
-                break;
+                for(j = 0;j < m; j++)
+                {
+                    if((*ship)[i][j] == '@' || (*ship)[i][j] == 'R' || (*ship)[i][j] == '.')
+                    {
+                        (*ship)[i][j] = '#';
+                    }
+                }
             }
-        }
 
-        if((*ship)[i][leia.y] != '@')
-        {
-            (*ship)[i][leia.y] = '.';
-        }
-    }
-
-    for(i = 0; i < m; i++)
-    {
-        if((*ship)[leia.x][i] == 'D')
-        {
-            continue;
-        }
-        else if((*ship)[leia.x][i] == 'L')
-        {
-            continue;
-        }
-        else if((*ship)[leia.x][i] == 'X')
-        {
-            continue;
-        }
-        else if((leia.x == r2.x && i == r2.y))
-        {
-            (*ship)[leia.x][i] = 'R';
-            continue;
-        }
-    
-        for(j = 0; j < storm; j++)
-        {
-            if(army[j].x == i && army[j].y == leia.y)
+            for(i = 0; i < n; i++)
             {
-                (*ship)[leia.x][i] = '@';
-                break;
-            }
-        }
+                if((i == r2.x && leia.y == r2.y))
+                {
+                    (*ship)[i][leia.y] = 'R';
+                    continue;
+                }
 
-        if((*ship)[leia.x][i] != '@')
-        {
-            (*ship)[leia.x][i] = '.';
-        }
+                for(j = 0; j < storm; j++)
+                {
+                    if(army[j].x == i && army[j].y == leia.y)
+                    {
+                        (*ship)[i][leia.y] = '@';
+                    }
+                }
+
+                if((*ship)[i][leia.y] != '@' && (*ship)[i][leia.y] != 'D' && (*ship)[i][leia.y] != 'L' && (*ship)[i][leia.y] != 'R' && (*ship)[i][leia.y] != 'X')
+                {
+                    (*ship)[i][leia.y] = '.';
+                }
+
+            }
+
+            for(i = 0; i < m; i++)
+            {
+                if((leia.x == r2.x && i == r2.y))
+                {
+                    (*ship)[leia.x][i] = 'R';
+                    continue;
+                }
+            
+                for(j = 0; j < storm; j++)
+                {
+                    if(army[j].x == i && army[j].y == leia.y)
+                    {
+                        (*ship)[leia.x][i] = '@';
+                    }
+                }
+
+                if((*ship)[leia.x][i] != '@' && (*ship)[leia.x][i] != 'D' && (*ship)[leia.x][i] != 'L' && (*ship)[leia.x][i] != 'R' && (*ship)[leia.x][i] != 'X')
+                {
+                    (*ship)[leia.x][i] = '.';
+                }
+            }
+         break;
+        case 1:
+        
+            for(i =0; i < n; i++)
+            {
+                for(j = 0; j < m; j++)
+                {
+                    if((*ship)[i][j] == '#')
+                    {
+                        (*ship)[i][j] = '.';
+                    }
+                }
+            }
+
+         break;
     }
 }
 
 void fill_board(char ***ship, int n, int m, r2d2 r2, stroop *army, int storm) // i do this so the board can intercat with the move functions
 {
-    int i, j, k;
+    int i;
 
     for(i = 0; i < storm; i++)
     {
@@ -829,6 +835,7 @@ char read_input(char **token, char **token2, char **moveset, int *size)
 {
     char choice;
     char str[100];
+    char *test_token;
     int i, len;
 
     *moveset = NULL;
@@ -839,17 +846,27 @@ char read_input(char **token, char **token2, char **moveset, int *size)
         len = read_text(str, 100, 1);
 
         *token = strtok(str, ">");
-        if(token == NULL);
-        else
+        if(*token != NULL)
         {
             *token2 = strtok(NULL, ">");
-            if(*token2 == NULL)
+            if(*token2 != NULL)
+            {
+                test_token = strtok(NULL, ">");
+                if(test_token != NULL)
+                {
+                    printf("Invalid choice. Please enter a valid move\n");
+                    continue;
+                }
+                else
+                {
+                    return 'f';
+                }
+            }
+            else
             {
                 printf("Invalid choice. Please enter a valid move\n");
                 continue;
-            }
-            
-            return 'f';
+            }   
         }
 
         choice = tolower(str[0]);
@@ -884,3 +901,7 @@ char read_input(char **token, char **token2, char **moveset, int *size)
     }
 }
 
+void using_force(char ***ship, char *token, char *token2, obs **objects, int obstacles, int n, int m)
+{
+
+}
