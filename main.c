@@ -89,7 +89,7 @@ int main(void)
 
     printf("Enter the number of rows (Minumun is 10 and Maximum is 200): ");
     scanf("%d", &m); 
-    while(m < 10 || m > 200)
+    while(m < 5 || m > 200)
     {
         printf("Invalid number of rows. Please enter a number between 10 and 200: ");
         scanf("%d", &m);
@@ -134,7 +134,7 @@ int main(void)
             generate_leia(&ship, &leia, n, m);
         }
         cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
-        print_board(ship, n, m);
+        print_board(ship, n, m); 
 
         choice = read_input(&cords1, &cords2, &moveset, &len);
 
@@ -193,8 +193,9 @@ int main(void)
                     break;
                 }
 
-                free(moveset);
+                leia.moves++;   
             }
+
         }
         else
         {
@@ -259,19 +260,21 @@ void print_board(char **ship, int n, int m)
     int i, j;
     char c;
 
-    // Print top indicators
     puts("\n");
     printf("\t     ");
     for (c = 'A'; c < 'A' + m; c++) 
     {
-        printf("%c ", c);
+        if (c > 'Z') {
+            printf("%c%c ", (c - 'A') / 26 + 'A' - 1, (c - 'A') % 26 + 'A');
+        } else {
+            printf("%c  ", c);
+        }
     }
     putchar('\n');
     printf("\t    ");
     for (c = 'A'; c < 'A' + m; c++)
     {
-        putchar('_');
-        putchar('_');
+        printf("___");
     }
     putchar('\n');
     
@@ -281,7 +284,7 @@ void print_board(char **ship, int n, int m)
 
         for(j = 0; j < m; j++)
         {
-            printf("%2c", ship[i][j]); 
+            printf(" %c ", ship[i][j]); 
         }
 
         putchar('\n');
@@ -441,7 +444,7 @@ void generate_stormtroopers(char ***ship, stroop **army, int n, int m, int storm
         }
     }
 
-    print_board(*ship, n, m);
+    // print_board(*ship, n, m);
 }
 
 void generate_vader(char ***ship, darth *vader, int n, int m)
@@ -452,7 +455,7 @@ void generate_vader(char ***ship, darth *vader, int n, int m)
 
     i = random_number(4);
     // i have to change the switch so i can function with n > m or m > n
-    switch(i)
+    switch(i + 1)
     {
         case 1:
             (*vader).x = 0;
@@ -508,7 +511,7 @@ void generate_obsticles(char ***ship, obs **objects, int n, int m, int obstacles
         (*objects)[i].y = y;
     }
 
-    print_board(*ship, n, m);
+    //print_board(*ship, n, m);
 
 }
 
@@ -680,17 +683,20 @@ int move_vader(char ***ship, darth *vader, int leia_x, int leia_y)
             }
         }
     } 
-    else if (dx < 0) 
+    else if(dx < 0) 
     {
-        if (dy > 0) {
-            if ((*ship)[(*vader).x - 1][(*vader).y + 1] != 'X' && (*ship)[(*vader).x - 1][(*vader).y + 1] != 'R' && (*ship)[(*vader).x - 1][(*vader).y + 1] != '@')
+        if(dy > 0)
+        {
+            if((*ship)[(*vader).x - 1][(*vader).y + 1] != 'X' && (*ship)[(*vader).x - 1][(*vader).y + 1] != 'R' && (*ship)[(*vader).x - 1][(*vader).y + 1] != '@')
             {
                 (*vader).x--;
                 (*vader).y++;
-            } else if ((*ship)[(*vader).x - 1][(*vader).y] != 'X' && (*ship)[(*vader).x - 1][(*vader).y] != 'R' && (*ship)[(*vader).x - 1][(*vader).y] != '@')
+            }
+            else if ((*ship)[(*vader).x - 1][(*vader).y] != 'X' && (*ship)[(*vader).x - 1][(*vader).y] != 'R' && (*ship)[(*vader).x - 1][(*vader).y] != '@')
             {
                 (*vader).x--;
-            } else if ((*ship)[(*vader).x][(*vader).y + 1] != 'X' && (*ship)[(*vader).x][(*vader).y + 1] != 'R' && (*ship)[(*vader).x][(*vader).y + 1] != '@')
+            }
+            else if ((*ship)[(*vader).x][(*vader).y + 1] != 'X' && (*ship)[(*vader).x][(*vader).y + 1] != 'R' && (*ship)[(*vader).x][(*vader).y + 1] != '@')
             {
                 (*vader).y++;
             }
