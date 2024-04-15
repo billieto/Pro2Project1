@@ -68,7 +68,7 @@ int main(void)
     char **ship; // this is the 2D array used to play the game
     char *moveset; // the moveset leia will perform in the game
     char *cords1, *cords2; // cords1 for the object the player wants to move and cords2 for the destination
-    char choice, play_again = 'y'; // the command the player wants to perform
+    char choice, play_again = 'y', c; // the command the player wants to perform
     stroop *army;
     obs *objects;
     darth vader;
@@ -79,19 +79,19 @@ int main(void)
 
     printf("\n\nWelcome to a galaxy far, far away...\n\n");
 
-    printf("Enter the number of cols (Minumun is 5 and Maximum is 26): ");       
+    printf("Enter the number of cols (Minumun is 30 and Maximum is 99): ");       
     scanf("%d", &n);
-    while(n < 5 || n > 26) 
+    while(n < 30 || n > 99) 
     {
-        printf("Invalid number of cols. Please enter a number between 5 and 26: ");
+        printf("Invalid number of cols. Please enter a number between 30 and 99: ");
         scanf("%d", &n); 
     } 
 
-    printf("Enter the number of rows (Minumun is 10 and Maximum is 200): ");
+    printf("Enter the number of rows (Minumun is 25 and Maximum is 58): ");
     scanf("%d", &m); 
-    while(m < 5 || m > 200)
+    while(m < 25 || m > 58)
     {
-        printf("Invalid number of rows. Please enter a number between 10 and 200: ");
+        printf("Invalid number of rows. Please enter a number between 25 and 58: ");
         scanf("%d", &m);
     }
 
@@ -104,7 +104,9 @@ int main(void)
         scanf("%d", &diff);
     }
 
-    while(1)
+    while ((c = getchar()) != '\n' && c != EOF);
+
+    while(n > 10 || m > 10)
     {
         flag = 0;
         level++;
@@ -114,8 +116,15 @@ int main(void)
             play_again = 0;
             if(level > 1)
             {
-                n--;
-                m--;
+                if(n > 10)
+                {
+                    n--;
+                }
+                
+                if(m > 10)
+                {
+                    m--;
+                }
                 free_all(&ship, &army, &objects, &moveset, n);
             }
 
@@ -196,6 +205,8 @@ int main(void)
                 leia.moves++;   
             }
 
+            //free(moveset);
+
         }
         else
         {
@@ -233,6 +244,11 @@ int main(void)
                 free_all(&ship, &army, &objects, &moveset, n);
             }
         }
+    }
+
+    if(n == 10 && m == 10)
+    {
+        printf("Congratulations! You have completed the game!\n\n");
     }
 
     printf("Thank you for playing!, we hope you liked the game!!\n");
@@ -840,15 +856,15 @@ void fill_board(char ***ship, int n, int m, r2d2 r2, stroop *army, int storm) //
 char read_input(char **token, char **token2, char **moveset, int *size)
 {
     char choice;
-    char str[100];
-    char *test_token;
+    char str[100] = {0};
+    char *test_token, c;
     int i, len;
 
     *moveset = NULL;
 
     while(1)
     {
-        printf("Enter your choice: ");
+        printf("Enter your choice: "); 
         len = read_text(str, 100, 1);
 
         *token = strtok(str, ">");
