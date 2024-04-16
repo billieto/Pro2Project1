@@ -925,5 +925,56 @@ char read_input(char **token, char **token2, char **moveset, int *size)
 
 void using_force(char ***ship, char *token, char *token2, obs **objects, int obstacles, int n, int m)
 {
+    int i, j, x1, x2, y1, y2, dig1, dig2, let1, let2;
+    int len1 = strlen(token), len2 = strlen(token2);;
 
+    for(i = 0; i < len1; i++)
+    {
+        if(isalpha(token[i]))
+        {
+            token[i] = toupper(token[i]);
+            token[i] = token[i] - 'A';
+            let1++;
+        }
+        else
+        {
+            dig1++;
+        }
+    }
+
+    for(i = 0; i < len2; i++)
+    {
+        if(isalpha(token2[i]))
+        {
+            token2[i] = toupper(token2[i]);
+            token2[i] = token2[i] - 'A';
+            let2++;
+        }
+        else
+        {
+            dig2++;
+        }
+    }
+
+    x1 = atoi(token);
+    if(let1 > 1)
+    {
+        x1 += atoi(token + 1);
+    }
+
+    x2 = atoi(token2);
+    if(let2 > 1)
+    {
+        x2 += atoi(token2 + 1);
+    }
+
+    y1 = atoi(token + dig1);
+
+    y2 = atoi(token2 + dig2);
+    
+
+    for(i = 0; i < len1; i++)
+    {
+        
+    }
 }
