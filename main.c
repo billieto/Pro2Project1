@@ -925,7 +925,7 @@ char read_input(char **token, char **token2, char **moveset, int *size)
 
 void using_force(char ***ship, char *token, char *token2, obs **objects, int obstacles, int n, int m)
 {
-    int i, j, x1, x2, y1, y2, dig1, dig2, let1, let2;
+    int i, j, x1, x2, y1, y2, dig1, dig2, let1, let2, temp;
     int len1 = strlen(token), len2 = strlen(token2);;
 
     for(i = 0; i < len1; i++)
@@ -933,7 +933,7 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
         if(isalpha(token[i]))
         {
             token[i] = toupper(token[i]);
-            token[i] = token[i] - 'A';
+            token[i] = token[i] - 'A' + '0';;
             let1++;
         }
         else
@@ -947,7 +947,7 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
         if(isalpha(token2[i]))
         {
             token2[i] = toupper(token2[i]);
-            token2[i] = token2[i] - 'A';
+            token2[i] = token2[i] - 'A' + '0';
             let2++;
         }
         else
@@ -956,25 +956,76 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
         }
     }
 
-    x1 = atoi(token);
-    if(let1 > 1)
-    {
-        x1 += atoi(token + 1);
-    }
-
-    x2 = atoi(token2);
-    if(let2 > 1)
-    {
-        x2 += atoi(token2 + 1);
-    }
-
-    y1 = atoi(token + dig1);
-
-    y2 = atoi(token2 + dig2);
+     temp = atoi(token);
+     switch(dig1)
+     {
+        case 1:
+            x1 = temp % 10;
+            temp /= 10;
+         break;
     
-
-    for(i = 0; i < len1; i++)
+        case 2:
+            x1 = temp % 100;
+            temp /= 100;
+         break;
+     }
+    
+    switch(let1)
     {
-        
+        case 1:
+            y1 = temp % 10;
+         break;
+    
+        case 2:
+            y1 = temp % 10;
+            temp /= 10;
+            switch(temp)
+            {
+                case 0:
+                    y1 += 26;
+                 break;
+
+                case 1:
+                    y1 += 51;
+                 break;
+            }
+         break;
+    }
+
+    temp = atoi(token2);
+
+    switch(dig2)
+    {
+        case 1:
+            x2 = temp % 10;
+            temp /= 10;
+         break;
+    
+        case 2:
+            x2 = temp % 100;
+            temp /= 100;
+         break;
+    }
+
+    switch(let2)
+    {
+        case 1:
+            y2 = temp % 10;
+         break;
+    
+        case 2:
+            y2 = temp % 10;
+            temp /= 10;
+            switch(temp)
+            {
+                case 0:
+                    y2 += 26;
+                 break;
+
+                case 1:
+                    y2 += 51;
+                 break;
+            }
+         break;
     }
 }
