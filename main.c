@@ -963,7 +963,7 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
     switch(let1)
     {
         case 1:
-            y1 = token - 'A';
+            y1 = token;
          break;
     
         case 2:
@@ -1017,11 +1017,11 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
 
     for(i = 0; i < obstacles; i++)
     {
-        if(objects[i] -> x == x1 && objects[i] -> y == y1)
+        if((*objects)[i].x == x1 && (*objects)[i].x == y1)
         {
-            (*ship)[objects[i] -> x][objects[i] -> y] = '#';
-            objects[i] -> x = x2;
-            objects[i] -> y = y2;
+            (*ship)[(*objects)[i].x][(*objects)[i].y] = '#';
+            (*objects)[i].x = x2;
+            (*objects)[i].y = y2;
             (*ship)[x2][y2] = 'X';
             break;
         }
