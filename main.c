@@ -142,8 +142,11 @@ int main(void)
 
             generate_leia(&ship, &leia, n, m);
         }
+
         cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
-        print_board(ship, n, m); 
+        print_board(ship, n, m);
+
+        fill_board(&ship, n, m, r2, army, storm);
 
         choice = read_input(&cords1, &cords2, &moveset, &len);
 
@@ -177,7 +180,7 @@ int main(void)
                 //flag = move_leia(&ship, &leia, moveset, n, m);
                 if(flag == 1)
                 {
-                    printf("\nBecause you impoted a moveset that cannot be done, leia will perform the moves she can do until the move she cant do is reached\n");
+                    printf("\nBecause you impoted a moveset that cannot be done, leia performed the moves she can do until the move she cant do is reached\n");
                     break; // flag is if leias moves are invalid
                 }
 
@@ -185,10 +188,7 @@ int main(void)
                 {
                     r2.found = 1;
                     break;
-                }
-
-                fill_board(&ship, n, m, r2, army, storm);
-                cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
+                }  
                 
                 captured = move_vader(&ship, &vader, leia.x, leia.y);
                 if(captured)
@@ -205,14 +205,9 @@ int main(void)
                 leia.moves++;   
             }
 
-            //free(moveset);
-
         }
         else
         {
-            fill_board(&ship, n, m, r2, army, storm);
-            cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
-
             captured = move_vader(&ship, &vader, leia.x, leia.y);
             if(captured)
             {
@@ -758,8 +753,15 @@ int move_vader(char ***ship, darth *vader, int leia_x, int leia_y)
             }
         }
     }
+    
+    if(vader -> x == leia_x && vader -> y == leia_y)
+    {
+        return 1;
+    }
 
-    (*ship)[(*vader).x][(*vader).y] = 'D';
+    (*ship)[vader -> x][vader -> y] = 'D';
+
+    return 0;
 }
 
 void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2, stroop *army, int storm, obs *objects, int obstacles, int help)
@@ -824,7 +826,7 @@ void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2
                 }
             }
          break;
-        case 1:
+        case 1: // not finished
         
             for(i =0; i < n; i++)
             {
@@ -933,7 +935,7 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
         if(isalpha(token[i]))
         {
             token[i] = toupper(token[i]);
-            token[i] = token[i] - 'A' + '0';;
+            token[i] = token[i] - 'A';
             let1++;
         }
         else
@@ -947,7 +949,7 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
         if(isalpha(token2[i]))
         {
             token2[i] = toupper(token2[i]);
-            token2[i] = token2[i] - 'A' + '0';
+            token2[i] = token2[i] - 'A';
             let2++;
         }
         else
@@ -956,30 +958,17 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
         }
     }
 
-     temp = atoi(token);
-     switch(dig1)
-     {
-        case 1:
-            x1 = temp % 10;
-            temp /= 10;
-         break;
-    
-        case 2:
-            x1 = temp % 100;
-            temp /= 100;
-         break;
-     }
-    
+    x1 = atoi(token + let1);
+
     switch(let1)
     {
         case 1:
-            y1 = temp % 10;
+            y1 = token - 'A';
          break;
     
         case 2:
-            y1 = temp % 10;
-            temp /= 10;
-            switch(temp)
+            y1 = token;
+            switch(token[1])
             {
                 case 0:
                     y1 += 26;
@@ -992,31 +981,17 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
          break;
     }
 
-    temp = atoi(token2);
-
-    switch(dig2)
-    {
-        case 1:
-            x2 = temp % 10;
-            temp /= 10;
-         break;
-    
-        case 2:
-            x2 = temp % 100;
-            temp /= 100;
-         break;
-    }
+    x2 = atoi(token2 + let2);
 
     switch(let2)
     {
         case 1:
-            y2 = temp % 10;
+            y2 = token2;
          break;
     
         case 2:
-            y2 = temp % 10;
-            temp /= 10;
-            switch(temp)
+            y2 = token2;
+            switch(token2[1])
             {
                 case 0:
                     y2 += 26;
@@ -1027,5 +1002,28 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
                  break;
             }
          break;
+    }
+
+    if((*ship)[x2][y2] != '#')
+    {
+        puts("Cant move object on the tile you want because someone or something is on the destination :(");
+        return;
+    }
+    else if((*ship)[x1][y1] != 'X')
+    {
+        puts("You cant move an object that is not an obstacle");
+        return;
+    }
+
+    for(i = 0; i < obstacles; i++)
+    {
+        if(objects[i] -> x == x1 && objects[i] -> y == y1)
+        {
+            (*ship)[objects[i] -> x][objects[i] -> y] = '#';
+            objects[i] -> x = x2;
+            objects[i] -> y = y2;
+            (*ship)[x2][y2] = 'X';
+            break;
+        }
     }
 }
