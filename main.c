@@ -41,7 +41,7 @@ typedef struct r2d2
 }r2d2;
 
 void check_malloc(void *p);
-int move_leia(char ***ship, princess *leia, char *moveset, int n, int m); //unfinished
+int move_leia(char ***ship, princess *leia, char *moveset, int n, int m, int offset_moveset);
 int move_vader(char ***ship, darth *vader, int leia_x, int leia_y);
 void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, int *injured, int leia_x, int leia_y);
 void generate_stormtroopers(char ***ship, stroop **army, int n, int m, int storm); 
@@ -66,9 +66,9 @@ int main(void)
 {
     int i, n, m, diff, storm = 2, obstacles, level = 0, len, flag = 0, captured = 0, help = 0;
     char **ship; // this is the 2D array used to play the game
-    char *moveset; // the moveset leia will perform in the game
+    char *moveset, offset = 0; // the moveset leia will perform in the game
     char *cords1, *cords2; // cords1 for the object the player wants to move and cords2 for the destination
-    char choice, play_again = 'y', c; // the command the player wants to perform
+    char choice, play_again = 'y', c;
     stroop *army;
     obs *objects;
     darth vader;
@@ -77,7 +77,7 @@ int main(void)
 
     srand(time(NULL)); 
 
-    printf("\n\nWelcome to a galaxy far, far away...\n\n");
+    puts("\n\nWelcome to a galaxy far, far away...\n");
 
     printf("Enter the number of cols (Minumun is 30 and Maximum is 99): ");       
     scanf("%d", &n);
@@ -104,15 +104,19 @@ int main(void)
         scanf("%d", &diff);
     }
 
-    while ((c = getchar()) != '\n' && c != EOF);
+    while((c = getchar()) != '\n' && c != EOF);
 
     while(n > 10 || m > 10)
     {
         flag = 0;
         level++;
         help = 0;
+        offset = 0;
+
         if(r2.found == 1 || play_again == 'y' || play_again == 'Y')
         {
+            leia.injured = 0;
+            captured = 0;
             play_again = 0;
             if(level > 1)
             {
@@ -125,6 +129,7 @@ int main(void)
                 {
                     m--;
                 }
+
                 free_all(&ship, &army, &objects, &moveset, n);
             }
 
@@ -158,26 +163,15 @@ int main(void)
 
         leia.moves++;
 
-        switch(choice)
+        if(choice == 'f')
         {
-            case 'm': // if the player want to move
-
-             break;
-
-            case 'h': // if the player want to use Master Yoda's (<3) help
-                help = 1;
-             break;
-
-            case 'f': // if the player want to use the force
-
-             break;
+            using_force(&ship, cords1, cords2, objects, obstacles, n, m);
         }
-
-        if(moveset != NULL)
+        else if(moveset != NULL)
         {
             for(i = 0; i < len; i++)
             {
-                //flag = move_leia(&ship, &leia, moveset, n, m);
+                flag = move_leia(&ship, &leia, moveset, n, m, offset);
                 if(flag == 1)
                 {
                     printf("\nBecause you impoted a moveset that cannot be done, leia performed the moves she can do until the move she cant do is reached\n");
@@ -190,19 +184,24 @@ int main(void)
                     break;
                 }  
                 
-                captured = move_vader(&ship, &vader, leia.x, leia.y);
+                if(leia.moves % 2 == 0)
+                {
+                    captured = move_vader(&ship, &vader, leia.x, leia.y);
+                }
+
                 if(captured)
                 {
                     break;
                 }
 
-                move_stormtroopers(&ship, &army, n, m, storm, &leia.injured, leia.x, leia.y); // na to kanw +1 kathe fora pou h leia sunantaei storm trooper, an einai megalutero tou 1 tote captured
+                move_stormtroopers(&ship, &army, n, m, storm, &leia.injured, leia.x, leia.y);
                 if(leia.injured > 1)
                 {
                     break;
                 }
 
-                leia.moves++;   
+                leia.moves++;
+                offset++;   
             }
 
         }
@@ -214,7 +213,7 @@ int main(void)
                 break;
             }
 
-            move_stormtroopers(&ship, &army, n, m, storm, &leia.injured, leia.x, leia.y); // na to kanw +1 kathe fora pou h leia sunantaei storm trooper, an einai megalutero tou 1 tote captured
+            move_stormtroopers(&ship, &army, n, m, storm, &leia.injured, leia.x, leia.y);
             if(leia.injured > 1)
             {
                 break;
@@ -224,12 +223,13 @@ int main(void)
         if(captured || leia.injured > 1)
         {
             printf("Do you want to play again? (y/n): ");
-            scanf("%c", &play_again);
+            play_again = getchar();
             while(play_again != 'y' && play_again !='Y' && play_again != 'n' && play_again != 'N')
             {
                 printf("Invalid choice. Please enter y or n: ");
-                scanf("%c", &play_again);
+                play_again = getchar();
             }
+
             if(play_again == 'n' || play_again == 'N')
             {
                 break;
@@ -243,10 +243,11 @@ int main(void)
 
     if(n == 10 && m == 10)
     {
-        printf("Congratulations! You have completed the game!\n\n");
+        puts("Congratulations! You have completed the game!\n");
     }
 
-    printf("Thank you for playing!, we hope you liked the game!!\n");
+    puts("Thank you for playing!, we hope you liked the game!!");
+    puts("Until next time traveler!");
 
     return 0;
 }// end of main
@@ -378,6 +379,7 @@ void generate_level_dependant(int level, int n, int m, int *storm, int *obstacle
     {
         case 1:
             *storm = n * m * 2 / 100;
+
             if (*storm < 2)
             {
                 *storm = 2;
@@ -388,6 +390,7 @@ void generate_level_dependant(int level, int n, int m, int *storm, int *obstacle
 
         case 2:
             *storm = n * m * 5 / 100;
+
             if (*storm < 2)
             {
                 *storm = 2;
@@ -398,6 +401,7 @@ void generate_level_dependant(int level, int n, int m, int *storm, int *obstacle
     
         case 3:
             *storm = n * m * 10 / 100;
+
             if (*storm < 2)
             {
                 *storm = 2;
@@ -408,6 +412,7 @@ void generate_level_dependant(int level, int n, int m, int *storm, int *obstacle
         
         case 4:
             *storm = n * m * 15 / 100;
+            
             if (*storm < 2)
             {
                 *storm = 2;
@@ -1038,7 +1043,64 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
     }
 }
 
-int move_leia(char ***ship, princess *leia, char *moveset, int n, int m)
+int move_leia(char ***ship, princess *leia, char *moveset, int n, int m, int offset_moveset)
 {
+    switch(moveset[offset_moveset])
+    {
+        case 'u':
+            if((*ship)[leia -> x][leia -> y - 1] != '.'|| leia -> y - 1 < 0)
+            {
+                return 1;
+            }
+            else
+            {
+                (*ship)[leia -> x][leia -> y] = '.';
+                leia -> y--;
+                (*ship)[leia -> x][leia -> y] = 'L';
+            }
+         break;
 
-} //unfinished
+        case 'd':
+            if((*ship)[leia -> x][leia -> y + 1] != '.' || leia -> y + 1 > m - 1)
+            {
+                return 1;
+            }
+            else
+            {
+                (*ship)[leia -> x][leia -> y] = '.';
+                leia -> y++;
+                (*ship)[leia -> x][leia -> y] = 'L';
+            }
+         break;
+        
+        case 'l':
+            if((*ship)[leia -> x - 1][leia -> y] != '.' || leia -> x - 1 > 0)
+            {
+                return 1;
+            }
+            else
+            {
+                (*ship)[leia -> x][leia -> y] = '.';
+                leia -> x--;
+                (*ship)[leia -> x][leia -> y] = 'L';
+            }
+         break;
+
+        case 'r':
+            if((*ship)[leia -> x + 1][leia -> y] != '.' || leia -> x + 1 > n - 1)
+            {
+                return 1;
+            }
+            else
+            {
+                (*ship)[leia -> x][leia -> y] = '.';
+                leia -> x++;
+                (*ship)[leia -> x][leia -> y] = 'L';
+            }
+         break;
+        
+    }    
+    
+    return 0;
+}
+
