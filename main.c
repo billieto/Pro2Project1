@@ -592,10 +592,10 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                 switch((*army)[i].bounds) 
                 {
                     case 0: // 0 for right
-                        if(current_x + 1 > n - 1 || (*ship)[current_x + 1][current_y] == 'X' || (*ship)[current_x + 1][current_y] == 'D' || (*ship)[current_x + 1][current_y] == 'R' || (*ship)[current_x + 1][current_y] == '@')
+                        if(current_y + 1 > m - 1 || (*ship)[current_x][current_y + 1] == 'X' || (*ship)[current_x][current_y + 1] == 'D' || (*ship)[current_x][current_y + 1] == 'R' || (*ship)[current_x][current_y + 1] == '@')
                         {
                             (*army)[i].bounds = 1;
-                            (*army)[i].x--;
+                            (*army)[i].y--;
                         }
                         else
                         {
@@ -604,7 +604,7 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                      break;
 
                     case 1: // 1 for left
-                        if(current_x - 1  < 0 || (*ship)[current_x - 1][current_y] == 'X' || (*ship)[current_x - 1][current_y] == 'D' || (*ship)[current_x - 1][current_y] == 'R' || (*ship)[current_x - 1][current_y] == '@')
+                        if(current_y - 1  < 0 || (*ship)[current_x][current_y - 1] == 'X' || (*ship)[current_x][current_y] == 'D' || (*ship)[current_x - 1][current_y] == 'R' || (*ship)[current_x - 1][current_y] == '@')
                         {
                             (*army)[i].bounds = 0;
                             (*army)[i].x++;
@@ -621,7 +621,7 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                 switch((*army)[i].bounds) // 0 for down
                 {
                     case 0:
-                        if(current_y + 1 > m - 1 || (*ship)[current_x][current_y + 1] == 'X' || (*ship)[current_x][current_y + 1] == 'D' || (*ship)[current_x][current_y + 1] == 'R' || (*ship)[current_x][current_y + 1] == '@')
+                        if(current_x + 1 > m - 1 || (*ship)[current_x + 1][current_y] == 'X' || (*ship)[current_x + 1][current_y] == 'D' || (*ship)[current_x + 1][current_y] == 'R' || (*ship)[current_x + 1][current_y] == '@')
                         {
                             (*army)[i].bounds = 1;
                             (*army)[i].x--;
@@ -633,7 +633,7 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                      break;
 
                     case 1: // 1 for up
-                        if(current_y - 1 < 0 || (*ship)[current_x][current_y - 1] == 'X' || (*ship)[current_x][current_y - 1] == 'D' || (*ship)[current_x][current_y - 1] == 'R' || (*ship)[current_x][current_y - 1] == '@')
+                        if(current_x - 1 < 0 || (*ship)[current_x - 1][current_y] == 'X' || (*ship)[current_x - 1][current_y] == 'D' || (*ship)[current_x - 1][current_y] == 'R' || (*ship)[current_x - 1][current_y] == '@')
                         {
                             (*army)[i].bounds = 1;
                             (*army)[i].y--;
