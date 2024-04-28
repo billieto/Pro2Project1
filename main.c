@@ -74,7 +74,8 @@ int main(void)
     princess leia;
     r2d2 r2;
 
-    srand(time(NULL)); 
+    srand(13);
+    //srand(time(NULL)); 
 
     puts("\n\nWelcome to a galaxy far, far away...\n");
 
@@ -118,6 +119,7 @@ int main(void)
             leia.injured = 0;
             captured = 0;
             play_again = 0;
+            leia.moves = 0;
 
             if(level > 1)
             {
@@ -153,7 +155,7 @@ int main(void)
         print_board(ship, n, m);
 
         fill_board(&ship, n, m, r2, army, storm);
-
+        print_board(ship, n, m);
         choice = read_input(&cords1, &cords2, &moveset, &len, &force_limit);
 
         if(choice == 'x')
@@ -265,7 +267,7 @@ void free_all(char ***ship, stroop **army, obs **objects, char **moveset, int n)
     free(*ship);
     free(*army);
     free(*objects);
-    free(*moveset);
+    //free(*moveset);
 }
 
 void print_board(char **ship, int n, int m)
@@ -577,14 +579,15 @@ void generate_r2d2(char ***ship, r2d2 *r2, int n, int m)
 void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, int *injured, int leia_x, int leia_y)
 {
     int i;
-    int current_x, current_y;
+    int current_x, current_y, test;
+
 
     for(i = 0; i < storm; i++)
     {
         current_x = (*army)[i].x;
         current_y = (*army)[i].y;
-
-        (*ship)[current_x][current_y] = '#';
+        //KAPOU STO SWITCH EINAI TO PROBLIMA MALAKA, DES TA ORIA KAI DES PWS LUTOURGEI SE ENA XARTI ILITHIE :)
+        (*ship)[(*army)[i].x][(*army)[i].y] = '#';
 
         switch((*army)[i].direction)
         {
@@ -592,26 +595,28 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                 switch((*army)[i].bounds) 
                 {
                     case 0: // 0 for right
-                        if(current_y + 1 > m - 1 || (*ship)[current_x][current_y + 1] == 'X' || (*ship)[current_x][current_y + 1] == 'D' || (*ship)[current_x][current_y + 1] == 'R' || (*ship)[current_x][current_y + 1] == '@')
+                        if((*army)[i].y + 1 > m - 1 || (*ship)[(*army)[i].x][(*army)[i].y + 1] == 'X' || (*ship)[(*army)[i].x][(*army)[i].y + 1] == 'D' || (*ship)[(*army)[i].x][(*army)[i].y + 1] == 'R' || (*ship)[(*army)[i].x][(*army)[i].y + 1] == '@')
                         {
                             (*army)[i].bounds = 1;
                             (*army)[i].y--;
+                            test = (*army)[i].y;
                         }
                         else
                         {
-                            (*army)[i].x++;
+                            (*army)[i].y++;
                         }
                      break;
 
                     case 1: // 1 for left
-                        if(current_y - 1  < 0 || (*ship)[current_x][current_y - 1] == 'X' || (*ship)[current_x][current_y] == 'D' || (*ship)[current_x - 1][current_y] == 'R' || (*ship)[current_x - 1][current_y] == '@')
+                        if((*army)[i].y - 1  < 0 || (*ship)[(*army)[i].x][(*army)[i].y - 1] == 'X' || (*ship)[(*army)[i].x][(*army)[i].y - 1] == 'D' || (*ship)[(*army)[i].x][(*army)[i].y - 1] == 'R' || (*ship)[(*army)[i].x][(*army)[i].y - 1] == '@')
                         {
                             (*army)[i].bounds = 0;
-                            (*army)[i].x++;
+                            (*army)[i].y++;
+                            test = (*army)[i].y;
                         }
                         else
                         {
-                            (*army)[i].x--;
+                            (*army)[i].y--;
                         }
                      break;
                 }
@@ -621,10 +626,11 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                 switch((*army)[i].bounds) // 0 for down
                 {
                     case 0:
-                        if(current_x + 1 > m - 1 || (*ship)[current_x + 1][current_y] == 'X' || (*ship)[current_x + 1][current_y] == 'D' || (*ship)[current_x + 1][current_y] == 'R' || (*ship)[current_x + 1][current_y] == '@')
+                        if((*army)[i].x + 1 > m - 1 || (*ship)[(*army)[i].x + 1][(*army)[i].y] == 'X' || (*ship)[(*army)[i].x + 1][(*army)[i].y] == 'D' || (*ship)[(*army)[i].x + 1][(*army)[i].y] == 'R' || (*ship)[(*army)[i].x + 1][(*army)[i].y] == '@')
                         {
                             (*army)[i].bounds = 1;
                             (*army)[i].x--;
+                            test = (*army)[i].x;
                         }
                         else
                         {
@@ -633,14 +639,15 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                      break;
 
                     case 1: // 1 for up
-                        if(current_x - 1 < 0 || (*ship)[current_x - 1][current_y] == 'X' || (*ship)[current_x - 1][current_y] == 'D' || (*ship)[current_x - 1][current_y] == 'R' || (*ship)[current_x - 1][current_y] == '@')
+                        if((*army)[i].x - 1 < 0 || (*ship)[(*army)[i].x - 1][(*army)[i].y] == 'X' || (*ship)[(*army)[i].x - 1][(*army)[i].y] == 'D' || (*ship)[(*army)[i].x - 1][(*army)[i].y] == 'R' || (*ship)[(*army)[i].x - 1][(*army)[i].y] == '@')
                         {
                             (*army)[i].bounds = 1;
-                            (*army)[i].y--;
+                            (*army)[i].x++;
+                            test = (*army)[i].x;
                         }
                         else
                         {
-                            (*army)[i].y++;
+                            (*army)[i].x--;
                         }
                      break;
                 }
@@ -650,13 +657,14 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
         if((*army)[i].x == leia_x && (*army)[i].y == leia_y)
         {
             (*injured)++;
+            // put that the stormtrooper is dead with a flag in the struct
         }
         
         if((*injured) > 1)
         {
             break;
         }
-
+        //print_board(*ship, n, m);
         (*ship)[(*army)[i].x][(*army)[i].y] = '@';
     }
 }
