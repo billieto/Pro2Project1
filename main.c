@@ -202,8 +202,6 @@ int main(void)
 
                 offset++;   
             }
-
-            continue;
         }
 
         if(choice == 'f')
@@ -217,6 +215,7 @@ int main(void)
             flag_f = using_force(&ship, cords1, cords2, &objects, obstacles, n, m);
             if(flag_f)
             {
+                force_limit--;
                 continue;
             }
 
@@ -592,7 +591,7 @@ void generate_r2d2(char ***ship, r2d2 *r2, int n, int m)
 void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, int *injured, int leia_x, int leia_y)
 {
     int i;
-    // KATI DEN DOULEUEI KALA ME TON KATHETOUS STORMTROOPERS!!!
+
     for(i = 0; i < storm; i++)
     {
         if(!(*army)[i].alive)
@@ -613,9 +612,13 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                             (*army)[i].bounds = 1;
                             (*army)[i].y--;
                         }
-                        else
+                        else if((*ship)[(*army)[i].x][(*army)[i].y + 1] != '@' && (*ship)[(*army)[i].x][(*army)[i].y + 1] != 'D' && (*ship)[(*army)[i].x][(*army)[i].y + 1] != 'R')
                         {
                             (*army)[i].y++;
+                        }
+                        else
+                        {
+                            continue;
                         }
                      break;
 
@@ -625,9 +628,13 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                             (*army)[i].bounds = 0;
                             (*army)[i].y++;
                         }
-                        else
+                        else if((*ship)[(*army)[i].x][(*army)[i].y - 1] != '@' && (*ship)[(*army)[i].x][(*army)[i].y - 1] != 'D' && (*ship)[(*army)[i].x][(*army)[i].y - 1] != 'R')
                         {
                             (*army)[i].y--;
+                        }
+                        else
+                        {
+                            continue;
                         }
                      break;
                 }
@@ -642,9 +649,13 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                             (*army)[i].bounds = 1;
                             (*army)[i].x--;
                         }
-                        else
+                        else if((*ship)[(*army)[i].x + 1][(*army)[i].y] != '@' && (*ship)[(*army)[i].x + 1][(*army)[i].y] != 'D' && (*ship)[(*army)[i].x + 1][(*army)[i].y] != 'R')
                         {
                             (*army)[i].x++;
+                        }
+                        else
+                        {
+                            continue;
                         }
                      break;
 
@@ -654,9 +665,13 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                             (*army)[i].bounds = 0;
                             (*army)[i].x++;
                         }
-                        else
+                        else if((*ship)[(*army)[i].x - 1][(*army)[i].y] != '@' && (*ship)[(*army)[i].x - 1][(*army)[i].y] != 'D' && (*ship)[(*army)[i].x - 1][(*army)[i].y] != 'R')
                         {
                             (*army)[i].x--;
+                        }
+                        else
+                        {
+                            continue;
                         }
                      break;
                 }
@@ -903,7 +918,7 @@ char read_input(char **token, char **token2, char **moveset, int *size, int *for
     char choice;
     char str[100] = {0};
     char *test_token;
-    int i, len, flag = 0;
+    int i, len;
 
     *moveset = NULL;
 
@@ -966,7 +981,7 @@ char read_input(char **token, char **token2, char **moveset, int *size, int *for
 
 int using_force(char ***ship, char *token, char *token2, obs **objects, int obstacles, int n, int m)
 {
-    int i, j, x1, x2, y1, y2, dig1, dig2, let1, let2;
+    int i, x1, x2, y1, y2, dig1, dig2, let1, let2;
     int len1 = strlen(token), len2 = strlen(token2);;
 
     for(i = 0; i < len1; i++)
