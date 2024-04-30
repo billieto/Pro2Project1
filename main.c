@@ -51,7 +51,7 @@ void generate_leia(char ***ship, princess *leia, int n, int m);
 void generate_r2d2(char ***ship, r2d2 *r2, int n, int m); 
 void generate_obsticles(char ***ship, obs **objects, int n, int m, int obstacles);
 void generate_level_dependant(int level, int n, int m, int *storm, int *obstacles);
-void using_force(char ***ship, char *token, char *token2, obs **objects, int obstacles, int n, int m);
+int using_force(char ***ship, char *token, char *token2, obs **objects, int obstacles, int n, int m);
 void print_board(char **ship, int n, int m);
 void fill_board(char ***ship, int n, int m, r2d2 r2, stroop *army, int storm);
 void inisialize_board(char ***ship, int n, int m);
@@ -64,7 +64,7 @@ int read_text(char str[], int size, int flag); // from mr. Tselika's book
 
 int main(void)
 {
-    int i, n, m, diff, storm = 2, obstacles, level = 0, len, flag = 0, captured = 0, help = 0, force_limit = 0;
+    int i, n, m, diff, storm = 2, obstacles, level = 0, len, flag_l = 0, captured = 0, help = 0, force_limit = 0, flag_f = 0;
     char **ship; // this is the 2D array used to play the game
     char *moveset, offset = 0; // the moveset leia will perform in the game
     char *cords1, *cords2; // cords1 for the object the player wants to move and cords2 for the destination
@@ -107,22 +107,18 @@ int main(void)
 
     while((c = getchar()) != '\n' && c != EOF);
 
-    leia.moves = 0;
-
     while(n > 10 || m > 10)
     {
-        flag = 0;
-        level++;
-        help = 0;
+        flag_l = 0;
+        flag_f = 0;
         offset = 0;
-        force_limit = 0;
 
         if(r2.found == 1 || play_again == 'y' || play_again == 'Y')
         {
-            leia.injured = 0;
             captured = 0;
             play_again = 0;
-            leia.moves = 0;
+            force_limit = 0;
+            level++;
 
             if(level > 1)
             {
@@ -161,6 +157,8 @@ int main(void)
         print_board(ship, n, m);
         choice = read_input(&cords1, &cords2, &moveset, &len, &force_limit);
 
+        help = 0;
+        // ta choice na prospathisw na ta kanw me switch case
         if(choice == 'x')
         {
             free_all(&ship, &army, &objects, &moveset, n);
@@ -171,8 +169,8 @@ int main(void)
         {
             for(i = 0; i < len; i++)
             {
-                flag = move_leia(&ship, &leia, &r2, moveset, n, m, offset);
-                if(flag == 1)
+                flag_l = move_leia(&ship, &leia, &r2, moveset, n, m, offset);
+                if(flag_l)
                 {
                     printf("\nBecause you impoted a moveset that cannot be done, leia performed the moves she can do until the move she cant do is reached\n");
                     break; // flag is if leias moves are invalid
@@ -210,11 +208,23 @@ int main(void)
 
         if(choice == 'f')
         {
-            using_force(&ship, cords1, cords2, &objects, obstacles, n, m);
+            if(force_limit > 2)
+            {
+                puts("You have reached the force limit for this game!");
+                continue;
+            }
+
+            flag_f = using_force(&ship, cords1, cords2, &objects, obstacles, n, m);
+            if(flag_f)
+            {
+                continue;
+            }
+
             leia.moves++;
         }
         else if(choice == 'h')
         {
+            help = 1;
             leia.moves++;
         }
 
@@ -893,7 +903,7 @@ char read_input(char **token, char **token2, char **moveset, int *size, int *for
     char choice;
     char str[100] = {0};
     char *test_token;
-    int i, len;
+    int i, len, flag = 0;
 
     *moveset = NULL;
 
@@ -954,7 +964,7 @@ char read_input(char **token, char **token2, char **moveset, int *size, int *for
     }
 }
 
-void using_force(char ***ship, char *token, char *token2, obs **objects, int obstacles, int n, int m)
+int using_force(char ***ship, char *token, char *token2, obs **objects, int obstacles, int n, int m)
 {
     int i, j, x1, x2, y1, y2, dig1, dig2, let1, let2;
     int len1 = strlen(token), len2 = strlen(token2);;
@@ -987,7 +997,19 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
         }
     }
 
+    if(!dig1 || !dig2 || !let1 || !let2)
+    {
+        puts("Invalid input. Please enter a valid move");
+        return 1;
+    }
+    
+
     x1 = atoi(token + let1) - 1;
+    if(x1 < 0 || x1 > n - 1)
+    {
+        puts("Invalid input. Please enter a valid move");
+        return 1;
+    }
 
     switch(let1)
     {
@@ -1010,7 +1032,18 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
          break;
     }
 
+    if(y1 < 0 || y1 > m - 1)
+    {
+        puts("Invalid input. Please enter a valid move");
+        return 1;
+    }
+
     x2 = atoi(token2 + let2) - 1;
+    if(x2 < 0 || x2 > n - 1)
+    {
+        puts("Invalid input. Please enter a valid move");
+        return 1;
+    }
 
     switch(let2)
     {
@@ -1033,15 +1066,21 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
          break;
     }
 
+    if(y2 < 0 || y2 > m - 1)
+    {
+        puts("Invalid input. Please enter a valid move");
+        return 1;
+    }
+
     if((*ship)[x2][y2] != '#' && (*ship)[x2][y2] != '.')
     {
         puts("Cant move object on the tile you want because someone or something is on the destination :(");
-        return;
+        return 1;
     }
     else if((*ship)[x1][y1] != 'X')
     {
         puts("You cant move an object that is not an obstacle");
-        return;
+        return 1;
     }
 
     for(i = 0; i < obstacles; i++)
@@ -1055,6 +1094,8 @@ void using_force(char ***ship, char *token, char *token2, obs **objects, int obs
             break;
         }
     }
+
+    return 0;
 }
 
 int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int m, int offset_moveset)
