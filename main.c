@@ -107,6 +107,8 @@ int main(void)
 
     while((c = getchar()) != '\n' && c != EOF);
 
+    leia.moves = 0;
+
     while(n > 10 || m > 10)
     {
         flag = 0;
@@ -153,7 +155,7 @@ int main(void)
         }
 
         cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
-        print_board(ship, n, m);
+        // print_board(ship, n, m); // the real print table
 
         fill_board(&ship, n, m, r2, army, storm);
         print_board(ship, n, m);
@@ -165,13 +167,7 @@ int main(void)
             break;
         }
 
-        leia.moves++;
-
-        if(choice == 'f')
-        {
-            using_force(&ship, cords1, cords2, &objects, obstacles, n, m);
-        }
-        else if(moveset != NULL)
+        if(moveset != NULL)
         {
             for(i = 0; i < len; i++)
             {
@@ -186,7 +182,9 @@ int main(void)
                 {
                     r2.found = 1;
                     break;
-                }  
+                }
+
+                leia.moves++;
                 
                 if(leia.moves % 2 == 0)
                 {
@@ -204,25 +202,28 @@ int main(void)
                     break;
                 }
 
-                leia.moves++;
                 offset++;   
             }
 
+            continue;
         }
-        else
+
+        if(choice == 'f')
+        {
+            using_force(&ship, cords1, cords2, &objects, obstacles, n, m);
+            leia.moves++;
+        }
+        else if(choice == 'h')
+        {
+            leia.moves++;
+        }
+
+        if(leia.moves % 2 == 0)
         {
             captured = move_vader(&ship, &vader, leia.x, leia.y);
-            if(captured)
-            {
-                break;
-            }
-
-            move_stormtroopers(&ship, &army, n, m, storm, &leia.injured, leia.x, leia.y);
-            if(leia.injured > 1)
-            {
-                break;
-            }
         }
+
+        move_stormtroopers(&ship, &army, n, m, storm, &leia.injured, leia.x, leia.y);
 
         if(captured || leia.injured > 1)
         {
@@ -581,7 +582,7 @@ void generate_r2d2(char ***ship, r2d2 *r2, int n, int m)
 void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, int *injured, int leia_x, int leia_y)
 {
     int i;
-
+    // KATI DEN DOULEUEI KALA ME TON KATHETOUS STORMTROOPERS!!!
     for(i = 0; i < storm; i++)
     {
         if(!(*army)[i].alive)
@@ -597,7 +598,7 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                 switch((*army)[i].bounds) 
                 {
                     case 0: // 0 for right
-                        if((*army)[i].y + 1 > m - 1 || (*ship)[(*army)[i].x][(*army)[i].y + 1] == 'X' || (*ship)[(*army)[i].x][(*army)[i].y + 1] == 'D' || (*ship)[(*army)[i].x][(*army)[i].y + 1] == 'R' || (*ship)[(*army)[i].x][(*army)[i].y + 1] == '@')
+                        if((*army)[i].y + 1 > m - 1 || ((*ship)[(*army)[i].x][(*army)[i].y + 1] != '#' && (*ship)[(*army)[i].x][(*army)[i].y + 1] != '.' && (*ship)[(*army)[i].x][(*army)[i].y + 1] != 'L'))
                         {
                             (*army)[i].bounds = 1;
                             (*army)[i].y--;
@@ -609,7 +610,7 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                      break;
 
                     case 1: // 1 for left
-                        if((*army)[i].y - 1  < 0 || (*ship)[(*army)[i].x][(*army)[i].y - 1] == 'X' || (*ship)[(*army)[i].x][(*army)[i].y - 1] == 'D' || (*ship)[(*army)[i].x][(*army)[i].y - 1] == 'R' || (*ship)[(*army)[i].x][(*army)[i].y - 1] == '@')
+                        if((*army)[i].y - 1  < 0 || ((*ship)[(*army)[i].x][(*army)[i].y - 1] != '#' && (*ship)[(*army)[i].x][(*army)[i].y - 1] != '.' && (*ship)[(*army)[i].x][(*army)[i].y - 1] != 'L'))
                         {
                             (*army)[i].bounds = 0;
                             (*army)[i].y++;
@@ -626,7 +627,7 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                 switch((*army)[i].bounds) // 0 for down
                 {
                     case 0:
-                        if((*army)[i].x + 1 > m - 1 || (*ship)[(*army)[i].x + 1][(*army)[i].y] == 'X' || (*ship)[(*army)[i].x + 1][(*army)[i].y] == 'D' || (*ship)[(*army)[i].x + 1][(*army)[i].y] == 'R' || (*ship)[(*army)[i].x + 1][(*army)[i].y] == '@')
+                        if((*army)[i].x + 1 > n - 1 || ((*ship)[(*army)[i].x + 1][(*army)[i].y] != '#' && (*ship)[(*army)[i].x + 1][(*army)[i].y] != '.' && (*ship)[(*army)[i].x + 1][(*army)[i].y] != 'L'))
                         {
                             (*army)[i].bounds = 1;
                             (*army)[i].x--;
@@ -638,9 +639,9 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                      break;
 
                     case 1: // 1 for up
-                        if((*army)[i].x - 1 < 0 || (*ship)[(*army)[i].x - 1][(*army)[i].y] == 'X' || (*ship)[(*army)[i].x - 1][(*army)[i].y] == 'D' || (*ship)[(*army)[i].x - 1][(*army)[i].y] == 'R' || (*ship)[(*army)[i].x - 1][(*army)[i].y] == '@')
+                        if((*army)[i].x - 1 < 0 || ((*ship)[(*army)[i].x - 1][(*army)[i].y] != '#' && (*ship)[(*army)[i].x - 1][(*army)[i].y] != '.' && (*ship)[(*army)[i].x - 1][(*army)[i].y] != 'L'))
                         {
-                            (*army)[i].bounds = 1;
+                            (*army)[i].bounds = 0;
                             (*army)[i].x++;
                         }
                         else
