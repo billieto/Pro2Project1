@@ -66,7 +66,7 @@ int main(void)
 {
     int i, n, m, diff, storm = 2, obstacles, level = 0, len, flag_l = 0, captured = 0, help = 0, force_limit = 0, flag_f = 0;
     char **ship; // this is the 2D array used to play the game
-    char *moveset, offset = 0; // the moveset leia will perform in the game
+    char *moveset; // the moveset leia will perform in the game
     char *cords1, *cords2; // cords1 for the object the player wants to move and cords2 for the destination
     char choice, play_again = 'y', c;
     stroop *army;
@@ -75,8 +75,8 @@ int main(void)
     princess leia;
     r2d2 r2;
 
-    srand(13);
-    //srand(time(NULL)); 
+    //srand(13);
+    srand(time(NULL)); 
 
     puts("\n\nWelcome to a galaxy far, far away...\n");
 
@@ -111,7 +111,6 @@ int main(void)
     {
         flag_l = 0;
         flag_f = 0;
-        offset = 0;
 
         if(r2.found == 1 || play_again == 'y' || play_again == 'Y')
         {
@@ -151,25 +150,25 @@ int main(void)
         }
 
         cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
-        // print_board(ship, n, m); // the real print table
+        print_board(ship, n, m); // the real print table
 
         fill_board(&ship, n, m, r2, army, storm);
-        print_board(ship, n, m);
+        //print_board(ship, n, m);
         choice = read_input(&cords1, &cords2, &moveset, &len, &force_limit);
 
         help = 0;
         // ta choice na prospathisw na ta kanw me switch case
+        
         if(choice == 'x')
         {
             free_all(&ship, &army, &objects, &moveset, n);
             break;
         }
-
-        if(moveset != NULL)
+        else if(moveset != NULL) // choice == 'm'
         {
             for(i = 0; i < len; i++)
             {
-                flag_l = move_leia(&ship, &leia, &r2, moveset, n, m, offset);
+                flag_l = move_leia(&ship, &leia, &r2, moveset, n, m, i);
                 if(flag_l)
                 {
                     printf("\nBecause you impoted a moveset that cannot be done, leia performed the moves she can do until the move she cant do is reached\n");
@@ -200,11 +199,11 @@ int main(void)
                     break;
                 }
 
-                offset++;   
+                // cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
+                //fill_board(&ship, n, m, r2, army, storm);
             }
         }
-
-        if(choice == 'f')
+        else if(choice == 'f')
         {
             if(force_limit > 2)
             {
@@ -220,19 +219,26 @@ int main(void)
             }
 
             leia.moves++;
+            
+            if(leia.moves % 2 == 0)
+            {
+                captured = move_vader(&ship, &vader, leia.x, leia.y);
+            }
+
+            move_stormtroopers(&ship, &army, n, m, storm, &leia.injured, leia.x, leia.y);
         }
         else if(choice == 'h')
         {
             help = 1;
             leia.moves++;
-        }
 
-        if(leia.moves % 2 == 0)
-        {
-            captured = move_vader(&ship, &vader, leia.x, leia.y);
-        }
+            if(leia.moves % 2 == 0)
+            {
+                captured = move_vader(&ship, &vader, leia.x, leia.y);
+            }
 
-        move_stormtroopers(&ship, &army, n, m, storm, &leia.injured, leia.x, leia.y);
+            move_stormtroopers(&ship, &army, n, m, storm, &leia.injured, leia.x, leia.y);    
+        }
 
         if(captured || leia.injured > 1)
         {
@@ -881,7 +887,8 @@ void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2
                 }
             }
          break;
-        case 1: // not finished
+
+        case 1:
         
             for(i =0; i < n; i++)
             {
@@ -961,13 +968,13 @@ char read_input(char **token, char **token2, char **moveset, int *size, int *for
                 str[i] = tolower(str[i]);
             }
 
-            if(str[i] != 'u' || str[i] != 'd' || str[i] != 'l' || str[i] != 'r')
+            if(str[i] != 'u' && str[i] != 'd' && str[i] != 'l' && str[i] != 'r')
             {
                 break;
             }
         }
 
-        if(i + 1 == len)
+        if(i == len || i == 0)
         {
             *moveset = (char *)malloc(len * sizeof(char));
             *moveset = str;
@@ -1118,7 +1125,7 @@ int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int 
     switch(moveset[offset_moveset])
     {
         case 'l':
-            if(leia -> y - 1 < 0 || ((*ship)[leia -> x][leia -> y - 1] != '.' && (*ship)[leia -> x][leia -> y - 1] != 'R'))
+            if(leia -> y - 1 < 0 || ((*ship)[leia -> x][leia -> y - 1] != '.' && (*ship)[leia -> x][leia -> y - 1] != '#' && (*ship)[leia -> x][leia -> y - 1] != 'R'))
             {
                 return 1;
             }
@@ -1131,7 +1138,7 @@ int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int 
          break;
 
         case 'r':
-            if(leia -> y + 1 > m - 1 || ((*ship)[leia -> x][leia -> y + 1] != '.' && (*ship)[leia -> x][leia -> y + 1] != 'R'))
+            if(leia -> y + 1 > m - 1 || ((*ship)[leia -> x][leia -> y + 1] != '.' && (*ship)[leia -> x][leia -> y + 1] != '#' && (*ship)[leia -> x][leia -> y + 1] != 'R'))
             {
                 return 1;
             }
@@ -1144,7 +1151,7 @@ int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int 
          break;
         
         case 'u':
-            if(leia -> x - 1 < 0 || ((*ship)[leia -> x - 1][leia -> y] != '.' && (*ship)[leia -> x - 1][leia -> y] != 'R'))
+            if(leia -> x - 1 < 0 || ((*ship)[leia -> x - 1][leia -> y] != '.' && (*ship)[leia -> x - 1][leia -> y] != '#' && (*ship)[leia -> x - 1][leia -> y] != 'R'))
             {
                 return 1;
             }
@@ -1157,7 +1164,7 @@ int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int 
          break;
 
         case 'd':
-            if(leia -> x + 1 > n - 1 || ((*ship)[leia -> x + 1][leia -> y] != '.' && (*ship)[leia -> x + 1][leia -> y] != 'R'))
+            if(leia -> x + 1 > n - 1 || ((*ship)[leia -> x + 1][leia -> y] != '.'  && (*ship)[leia -> x + 1][leia -> y] != '#' && (*ship)[leia -> x + 1][leia -> y] != 'R'))
             {
                 return 1;
             }
