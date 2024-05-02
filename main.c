@@ -139,6 +139,12 @@ int main(void)
                 }
 
                 free_all(&ship, &army, &objects, &moveset, n);
+
+                if(n == 10 && m == 10)
+                {
+                    puts("Congratulations! You have completed the game!\n");
+                    break;
+                }
             }
 
             inisialize_board(&ship, n, m);
@@ -264,11 +270,6 @@ int main(void)
                 free_all(&ship, &army, &objects, &moveset, n);
             }
         }
-    }
-
-    if(n == 10 && m == 10)
-    {
-        puts("Congratulations! You have completed the game!\n");
     }
 
     puts("Thank you for playing!, we hope you liked the game!!");
@@ -857,9 +858,9 @@ void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2
 
                 for(j = 0; j < storm; j++)
                 {
-                    if(army[j].x == i && army[j].y == leia.y)
+                    if(army[j].x == leia.x && army[j].y == leia.y)
                     {
-                        (*ship)[i][leia.y] = '@';
+                        (*ship)[leia.x][leia.y] = '@';
                     }
                 }
 
@@ -880,9 +881,9 @@ void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2
             
                 for(j = 0; j < storm; j++)
                 {
-                    if(army[j].x == i && army[j].y == leia.y)
+                    if(army[j].x == leia.x && army[j].y == leia.y)
                     {
-                        (*ship)[leia.x][i] = '@';
+                        (*ship)[leia.x][leia.y] = '@';
                     }
                 }
 
