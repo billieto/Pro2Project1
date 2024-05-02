@@ -114,7 +114,7 @@ int main(void)
 
     while((c = getchar()) != '\n' && c != EOF); // clear buffer
 
-    while(n > 10 || m > 10) // the criteria to win the game, min cols is 10 min rows is 10
+    while(play_again != 'N' && play_again != 'n')// the criteria to win the game, min cols is 10 min rows is 10
     {
         flag_l = 0;
         flag_f = 0;
@@ -300,17 +300,20 @@ void print_board(char **ship, int n, int m)
 
     puts("\n");
     printf("\t     ");
-    for (c = 'A'; c < 'A' + m; c++) 
+    for(c = 'A'; c < 'A' + m; c++) 
     {
-        if (c > 'Z') {
+        if(c > 'Z')
+        {
             printf("%c%c ", (c - 'A') / 26 + 'A' - 1, (c - 'A') % 26 + 'A');
-        } else {
+        }
+        else
+        {
             printf("%c  ", c);
         }
     }
     putchar('\n');
     printf("\t    ");
-    for (c = 'A'; c < 'A' + m; c++)
+    for(c = 'A'; c < 'A' + m; c++)
     {
         printf("___");
     }
@@ -333,7 +336,7 @@ void print_board(char **ship, int n, int m)
 
 void check_malloc(void *p)
 {
-    if (p == NULL)
+    if(p == NULL)
     {
         printf("Memory allocation failed\n");
         exit(EXIT_FAILURE);
@@ -858,9 +861,9 @@ void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2
 
                 for(j = 0; j < storm; j++)
                 {
-                    if(army[j].x == leia.x && army[j].y == leia.y)
+                    if(army[j].x == i && army[j].y == leia.y)
                     {
-                        (*ship)[leia.x][leia.y] = '@';
+                        (*ship)[i][leia.y] = '@';
                     }
                 }
 
@@ -881,9 +884,9 @@ void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2
             
                 for(j = 0; j < storm; j++)
                 {
-                    if(army[j].x == leia.x && army[j].y == leia.y)
+                    if(army[j].x == leia.x && army[j].y == i)
                     {
-                        (*ship)[leia.x][leia.y] = '@';
+                        (*ship)[leia.x][i] = '@';
                     }
                 }
 
