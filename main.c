@@ -1,10 +1,16 @@
+// Sakellariou-Kyrou Vasileios
+// AM: 2022202300037
+//
+// Milonas Nikolaos
+// AM: 2022202300
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
 
-// Where x and y the cordinates of the caracter/ obstacle (x,y) in the 2D array
+// Where x and y the cordinates of the character/ obstacle (x,y) in the 2D array
 typedef struct stormtrooper
 {
     int x;
@@ -41,41 +47,42 @@ typedef struct r2d2
     int found; // 0 for not found, 1 for found
 }r2d2;
 
-void check_malloc(void *p);
-int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int m, int offset_moveset);
-int move_vader(char ***ship, darth *vader, int leia_x, int leia_y);
-void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, int *injured, int leia_x, int leia_y);
-void generate_stormtroopers(char ***ship, stroop **army, int n, int m, int storm); 
-void generate_vader(char ***ship, darth *vader, int n, int m);
-void generate_leia(char ***ship, princess *leia, int n, int m);
-void generate_r2d2(char ***ship, r2d2 *r2, int n, int m); 
-void generate_obsticles(char ***ship, obs **objects, int n, int m, int obstacles);
-void generate_level_dependant(int level, int n, int m, int *storm, int *obstacles);
-int using_force(char ***ship, char *token, char *token2, obs **objects, int obstacles, int n, int m);
-void print_board(char **ship, int n, int m);
-void fill_board(char ***ship, int n, int m, r2d2 r2, stroop *army, int storm);
-void inisialize_board(char ***ship, int n, int m);
-void free_all(char ***ship, stroop **army, obs **objects, char **moveset, int n);
-void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2, stroop *army, int storm, obs *objects, int obstacles, int help);
-char read_input(char **token, char **token2, char **moveset, int *size, int *force_limit);
-int random_number(int n);
-int read_text(char str[], int size, int flag); // from mr. Tselika's book
+void check_malloc(void *p); // if malloc returns null something went wrong, exiting the program
+int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int m, int offset_moveset); // function to move leia, return 1 if leia cant do the move, returns 0 if she can
+int move_vader(char ***ship, darth *vader, int leia_x, int leia_y); // function to move vader, return 1 if vader got leia, returns 0 if vader didnt got leia
+void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, int *injured, int leia_x, int leia_y); // every level generates new stormtroopers
+void generate_stormtroopers(char ***ship, stroop **army, int n, int m, int storm); // every level generates the new stormtroopers
+void generate_vader(char ***ship, darth *vader, int n, int m); // every level generates the new vader
+void generate_leia(char ***ship, princess *leia, int n, int m); // every level generates new leia
+void generate_r2d2(char ***ship, r2d2 *r2, int n, int m); // every level generates new r2d2
+void generate_obsticles(char ***ship, obs **objects, int n, int m, int obstacles); // every level generates new obsticles
+void generate_level_dependant(int level, int n, int m, int *storm, int *obstacles); // every level generates the amount of stormtroopers and obsticles based on the difficulty the player chose 
+int using_force(char ***ship, char *token, char *token2, obs **objects, int obstacles, int n, int m); // function to impliment the force mechanic, returns 1 if something went wrong, returns 0 if everything did go well
+void print_board(char **ship, int n, int m); // function to pint the board
+void fill_board(char ***ship, int n, int m, r2d2 r2, stroop *army, int storm); // function so the move function work fine, basicly it fills the board with stormtroopers and r2d2
+void inisialize_board(char ***ship, int n, int m); // malloc for the 2d board
+void free_all(char ***ship, stroop **army, obs **objects, char **moveset, int n); // all free into 1 function, just to look good in main
+void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2, stroop *army, int storm, obs *objects, int obstacles, int help); // function to cover the board so the player can play normally
+char read_input(char **token, char **token2, char **moveset, int *size, int *force_limit); // function to read the user input and determen what he wants to do 
+int random_number(int n); // generates a random number between 0 and n - 1, took the idea from mr. Trifonopoulos slides
+int read_text(char str[], int size, int flag); // from mr. Tselika's book, it return the size and checks if the input got through just fine
 
 
 int main(void)
 {
     int i, n, m, diff, storm = 2, obstacles, level = 0, len, flag_l = 0, captured = 0, help = 0, force_limit = 0, flag_f = 0;
+    // "storm" is the amount of stormtroopers there are on the board, "obstacles" does the same job as "storm"
     char **ship; // this is the 2D array used to play the game
     char *moveset; // the moveset leia will perform in the game
     char *cords1, *cords2; // cords1 for the object the player wants to move and cords2 for the destination
-    char choice, play_again = 'y', c;
+    char choice, play_again = 'y', c; // c is for resetting buffer
     stroop *army;
-    obs *objects;
+    obs *objects; 
     darth vader;
-    princess leia;
-    r2d2 r2;
+    princess leia; 
+    r2d2 r2; 
 
-    //srand(13);
+    //srand(13); // My debuggind was done in this seed
     srand(time(NULL)); 
 
     puts("\n\nWelcome to a galaxy far, far away...\n");
@@ -105,9 +112,9 @@ int main(void)
         scanf("%d", &diff);
     }
 
-    while((c = getchar()) != '\n' && c != EOF);
+    while((c = getchar()) != '\n' && c != EOF); // clear buffer
 
-    while(n > 10 || m > 10)
+    while(n > 10 || m > 10) // the criteria to win the game, min cols is 10 min rows is 10
     {
         flag_l = 0;
         flag_f = 0;
@@ -150,6 +157,7 @@ int main(void)
         }
 
         cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
+        printf("Level: %d", level);
         print_board(ship, n, m); // the real print table
 
         fill_board(&ship, n, m, r2, army, storm);
@@ -157,22 +165,22 @@ int main(void)
         choice = read_input(&cords1, &cords2, &moveset, &len, &force_limit);
 
         help = 0;
-        // ta choice na prospathisw na ta kanw me switch case
-        
+
+        // I wanted to do it in a switch case but cant operate it with the breaks     
         if(choice == 'x')
         {
             free_all(&ship, &army, &objects, &moveset, n);
             break;
         }
-        else if(moveset != NULL) // choice == 'm'
+        else if(choice == 'm')
         {
             for(i = 0; i < len; i++)
             {
                 flag_l = move_leia(&ship, &leia, &r2, moveset, n, m, i);
-                if(flag_l)
+                if(flag_l) // flag is if leias moves are invalid
                 {
                     printf("\nBecause you impoted a moveset that cannot be done, leia performed the moves she can do until the move she cant do is reached\n");
-                    break; // flag is if leias moves are invalid
+                    break;
                 }
 
                 if(leia.x == r2.x && leia.y == r2.y)
@@ -198,9 +206,6 @@ int main(void)
                 {
                     break;
                 }
-
-                // cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
-                //fill_board(&ship, n, m, r2, army, storm);
             }
         }
         else if(choice == 'f')
@@ -212,7 +217,7 @@ int main(void)
             }
 
             flag_f = using_force(&ship, cords1, cords2, &objects, obstacles, n, m);
-            if(flag_f)
+            if(flag_f) // This flag is is the force move cant be done 
             {
                 force_limit--;
                 continue;
@@ -390,7 +395,7 @@ void inisialize_board(char ***ship, int n, int m)
         {
             (*ship)[i][j] = '#';
         }
-    }// i know curly brackets are not needed but i want to have them if my partner wants to add something and save him time    
+    }    
 }
 
 void generate_level_dependant(int level, int n, int m, int *storm, int *obstacles)
@@ -831,9 +836,9 @@ void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2
     switch(help)
     {
         case 0:
-            for(i = 0;i < n; i++)
+            for(i = 0; i < n; i++)
             {
-                for(j = 0;j < m; j++)
+                for(j = 0; j < m; j++)
                 {
                     if((*ship)[i][j] == '@' || (*ship)[i][j] == 'R' || (*ship)[i][j] == '.')
                     {
@@ -974,7 +979,7 @@ char read_input(char **token, char **token2, char **moveset, int *size, int *for
             }
         }
 
-        if(i == len || i == 0)
+        if(i == len)
         {
             *moveset = (char *)malloc(len * sizeof(char));
             *moveset = str;
