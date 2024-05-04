@@ -52,7 +52,7 @@ typedef struct r2d2
 void check_malloc(void *p); // if malloc returns null something went wrong, exiting the program
 int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int m, int offset_moveset); // function to move leia, return 1 if leia cant do the move, returns 0 if she can
 int move_vader(char ***ship, darth *vader, int leia_x, int leia_y); // function to move vader, return 1 if vader got leia, returns 0 if vader didnt got leia
-void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, int *injured, int leia_x, int leia_y); // every level generates new stormtroopers
+void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, int *injured, int leia_x, int leia_y, int i); // every level generates new stormtroopers
 void generate_stormtroopers(char ***ship, stroop **army, int n, int m, int storm); // every level generates the new stormtroopers
 void generate_vader(char ***ship, darth *vader, int n, int m); // every level generates the new vader
 void generate_leia(char ***ship, princess *leia, int n, int m); // every level generates new leia
@@ -289,7 +289,7 @@ void move_enemies(char ***ship, stroop **army, int storm, darth *vader, int *cap
         *captured = move_vader(ship, vader, leia -> x, leia -> y);
     }
 
-    move_stormtroopers(ship, army, n, m, storm, &(leia -> injured), leia -> x, leia -> y);
+    move_stormtroopers(ship, army, n, m, storm, &(leia -> injured), leia -> x, leia -> y, storm - 1);
 }
 
 
@@ -615,15 +615,15 @@ void generate_r2d2(char ***ship, r2d2 *r2, int n, int m)
     r2 -> found = 0;
 }
 
-void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, int *injured, int leia_x, int leia_y)
+void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, int *injured, int leia_x, int leia_y, int i)
 {
-    int i;
-
-    for(i = 0; i < storm; i++)
+    if(i == 0)
     {
+        return;
+    }
         if(!(*army)[i].alive)
         {
-            continue;
+           move_stormtroopers(ship, army, n, m, storm, injured, leia_x, leia_y, i - 1);
         }
 
         (*ship)[(*army)[i].x][(*army)[i].y] = '#';
@@ -643,10 +643,6 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                         {
                             (*army)[i].y++;
                         }
-                        else
-                        {
-                            continue;
-                        }
                      break;
 
                     case 1: // 1 for left
@@ -658,10 +654,6 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                         else if((*ship)[(*army)[i].x][(*army)[i].y - 1] != '@' && (*ship)[(*army)[i].x][(*army)[i].y - 1] != 'D' && (*ship)[(*army)[i].x][(*army)[i].y - 1] != 'R')
                         {
                             (*army)[i].y--;
-                        }
-                        else
-                        {
-                            continue;
                         }
                      break;
                 }
@@ -680,10 +672,6 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                         {
                             (*army)[i].x++;
                         }
-                        else
-                        {
-                            continue;
-                        }
                      break;
 
                     case 1: // 1 for up
@@ -695,10 +683,6 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
                         else if((*ship)[(*army)[i].x - 1][(*army)[i].y] != '@' && (*ship)[(*army)[i].x - 1][(*army)[i].y] != 'D' && (*ship)[(*army)[i].x - 1][(*army)[i].y] != 'R')
                         {
                             (*army)[i].x--;
-                        }
-                        else
-                        {
-                            continue;
                         }
                      break;
                 }
@@ -717,14 +701,15 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, in
         
         if((*injured) > 1)
         {
-            break;
+            return;
         }
         //print_board(*ship, n, m);
         if((*army)[i].alive)
         {
             (*ship)[(*army)[i].x][(*army)[i].y] = '@';
         }
-    }
+
+    move_stormtroopers(ship, army, n, m, storm, injured, leia_x, leia_y, i - 1);
 }
 
 int move_vader(char ***ship, darth *vader, int leia_x, int leia_y)
