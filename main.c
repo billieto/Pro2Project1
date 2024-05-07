@@ -202,7 +202,7 @@ int main(void)
                 flag_l = move_leia(&ship, &leia, &r2, moveset, n, m, i);
                 if(flag_l) // flag is if leias moves are invalid
                 {
-                    puts("\n\nBecause you impoted a moveset that cannot be done, leia performed the moves she can do until the move she cant do is reached");
+                    puts("\n\nBecause you impoted a moveset that cannot be done, leia performed the moves she can do until the move she cant do is reached\n");
                     break;
                 }
 
