@@ -52,7 +52,7 @@ typedef struct r2d2
 void check_malloc(void *p); // if malloc returns null something went wrong, exiting the program
 int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int m, int offset_moveset); // function to move leia, return 1 if leia cant do the move, returns 0 if she can
 int move_vader(char ***ship, darth *vader, int leia_x, int leia_y); // function to move vader, return 1 if vader got leia, returns 0 if vader didnt got leia
-void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, int *injured, int leia_x, int leia_y, int i); // every level generates new stormtroopers
+void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, int *injured, int leia_x, int leia_y); // every level generates new stormtroopers
 void generate_stormtroopers(char ***ship, stroop **army, int n, int m, int storm); // every level generates the new stormtroopers
 void generate_vader(char ***ship, darth *vader, int n, int m); // every level generates the new vader
 void generate_leia(char ***ship, princess *leia, int n, int m); // every level generates new leia
@@ -63,7 +63,7 @@ int using_force(char ***ship, char *token, char *token2, obs **objects, int obst
 void print_board(char **ship, int n, int m); // function to pint the board
 void fill_board(char ***ship, int n, int m, r2d2 r2, stroop *army, int storm); // function so the move function work fine, basicly it fills the board with stormtroopers and r2d2
 void inisialize_board(char ***ship, int n, int m); // malloc for the 2d board
-void free_all(char ***ship, stroop **army, obs **objects, int n); // all free into 1 function, just to look good in main
+void free_all(char ***ship, stroop **army, obs **objects, int n, int obstacles); // all free into 1 function, just to look good in main
 void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2, stroop *army, int storm, obs *objects, int obstacles, int help); // function to cover the board so the player can play normally
 char read_input(char **token, char **token2, char **moveset, int *size, int *force_limit); // function to read the user input and determen what he wants to do 
 int random_number(int n); // generates a random number between 0 and n - 1, took the idea from mr. Trifonopoulos slides
@@ -74,6 +74,7 @@ void move_enemies(char ***ship, stroop **army, int storm, darth *vader, int *cap
 int main(void)
 {
     int i, n, m, diff = 2, storm = 2, obstacles, level = 1, len = 0, flag_l = 0, captured = 0, help = 0, force_limit = 0, flag_f = 0;
+    int starting_m, staring_n;
     // "storm" is the amount of stormtroopers there are on the board, "obstacles" does the same job as "storm", i enter values to veriables to be sure
     char **ship; // this is the 2D array used to play the game
     char *moveset = NULL; // the moveset leia will perform in the game
@@ -85,8 +86,10 @@ int main(void)
     princess leia; 
     r2d2 r2; 
 
-    //srand(13); // My debuggind was done in this seed
-    srand(time(NULL)); 
+    r2.found = 1;
+
+    srand(13); // My debuggind was done in this seed
+    //srand(time(NULL)); 
     //A small manual for a more friendly experiance to the user <3
     puts("\n\nWelcome to a galaxy far, far away...\n");
     puts("Before you start your jurney you have to know some keen things.\n");
@@ -122,6 +125,9 @@ int main(void)
         scanf("%d", &m);
     }
 
+    starting_m = m;
+    staring_n = n;
+
     puts("\n\nThe difficulties are:\n1 for Easy\n2 for Medium\n3 for Hard\n4 for Imposible\n");
     printf("Enter the difficulty level (1-4): ");
     scanf("%d", &diff); 
@@ -133,7 +139,7 @@ int main(void)
 
     while((c = getchar()) != '\n' && c != EOF); // clear buffer
 
-    while(play_again != 'n')// the criteria to win the game, min cols is 10 min rows is 10
+    while(1)
     {
         flag_l = 0;
         flag_f = 0;
@@ -142,37 +148,7 @@ int main(void)
         {
             captured = 0;
             force_limit = 0;
-            if(play_again == 'y')
-            {
-                level = 1;
-            }
-            else
-            {
-                level++;
-            }
-            play_again = 0;
-
-            if(level > 1)
-            {
-                if(n > 10)
-                {
-                    n--;
-                }
-                
-                if(m > 10)
-                {
-                    m--;
-                }
-
-                if(n == 10 && m == 10)
-                {
-                    puts("Congratulations! You have completed the game!\n");
-                    break;
-                }
-
-                free_all(&ship, &army, &objects, n);
-
-            }
+            play_again = EOF;
 
             inisialize_board(&ship, n, m);
 
@@ -182,7 +158,10 @@ int main(void)
 
             generate_stormtroopers(&ship, &army, n, m, storm);
 
-            generate_obsticles(&ship, &objects, n, m, obstacles);
+            if(obstacles != 0)
+            {
+                generate_obsticles(&ship, &objects, n, m, obstacles);
+            }
 
             generate_r2d2(&ship, &r2, n, m);
 
@@ -190,11 +169,23 @@ int main(void)
         }
 
         cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
-        printf("Level: %d", level);
-        print_board(ship, n, m); // the real print table
+
+        printf("Level: %d, ", level);
+        if(leia.injured == 1)
+        {
+            printf("Leia status: Injured!!!");
+        }
+        else
+        {
+            printf("Leia status: Not Injured");
+        }
+        printf(", Moves: %d, ", leia.moves);
+        printf("Force uses: %d", 2 - force_limit);
+
+        //print_board(ship, n, m); // the real print table
 
         fill_board(&ship, n, m, r2, army, storm);
-        //print_board(ship, n, m);
+        print_board(ship, n, m);
         choice = read_input(&cords1, &cords2, &moveset, &len, &force_limit);
 
         help = 0;
@@ -202,6 +193,7 @@ int main(void)
         // I wanted to do it in a switch case but cant operate it with the breaks     
         if(choice == 'x')
         {
+            free_all(&ship, &army, &objects, n, obstacles);
             break;
         }
         else if(choice == 'm')
@@ -211,7 +203,7 @@ int main(void)
                 flag_l = move_leia(&ship, &leia, &r2, moveset, n, m, i);
                 if(flag_l) // flag is if leias moves are invalid
                 {
-                    printf("\nBecause you impoted a moveset that cannot be done, leia performed the moves she can do until the move she cant do is reached\n");
+                    puts("\n\nBecause you impoted a moveset that cannot be done, leia performed the moves she can do until the move she cant do is reached");
                     break;
                 }
 
@@ -233,9 +225,15 @@ int main(void)
         }
         else if(choice == 'f')
         {
+            if(obstacles == 0)
+            {
+                puts("\nThere aernt any obstacles to move, please enter a valid move!\n");
+                continue;
+            }
+
             if(force_limit > 2)
             {
-                puts("You have reached the force limit for this game!");
+                puts("\nYou have reached the force limit for this game!\n");
                 continue;
             }
 
@@ -257,11 +255,11 @@ int main(void)
 
         if(captured || leia.injured > 1)
         {
-            printf("Do you want to play again? (y/n): ");
+            printf("\nDo you want to play again? (y/n): ");
             play_again = getchar();
             while(play_again != 'y' && play_again !='Y' && play_again != 'n' && play_again != 'N')
             {
-                printf("Invalid choice. Please enter y or n: ");
+                printf("\nInvalid choice. Please enter y or n: ");
                 play_again = getchar();
             }
 
@@ -269,13 +267,49 @@ int main(void)
             {
                 play_again = tolower(play_again);
             }
+
+            free_all(&ship, &army, &objects, n, obstacles);
+
+            if(play_again == 'y')
+            {
+                n = staring_n;
+                m = starting_m;
+                level = 1;
+            }
+            else
+            {
+                break;
+            }
+
+            r2.found = 1;
+        }
+        else if(r2.found)
+        {
+            free_all(&ship, &army, &objects, n, obstacles);
+
+            if(n > 10)
+            {
+                n--;
+            }
+
+            if(m > 10)
+            {
+                m--;
+            }
+
+            if(n == 10 && m == 10)
+            {
+                puts("\n\nCongratulations! You have completed the game!\n");
+                break;
+            }
+
+            level++;
+
         }
     }
-    
-    free_all(&ship, &army, &objects, n);
 
-    puts("Thank you for playing!, we hope you liked the game!!");
-    puts("Until next time traveler!");
+    puts("\n\nThank you for playing!, we hope you liked the game!!");
+    puts("Until next time traveler!\n\n");
 
     return 0;
 }// end of main
@@ -289,11 +323,11 @@ void move_enemies(char ***ship, stroop **army, int storm, darth *vader, int *cap
         *captured = move_vader(ship, vader, leia -> x, leia -> y);
     }
 
-    move_stormtroopers(ship, army, n, m, storm, &(leia -> injured), leia -> x, leia -> y, storm - 1);
+    move_stormtroopers(ship, army, n, m, storm /*- 1*/, &(leia -> injured), leia -> x, leia -> y);
 }
 
 
-void free_all(char ***ship, stroop **army, obs **objects, int n)
+void free_all(char ***ship, stroop **army, obs **objects, int n, int obstacles)
 {
     int i;
 
@@ -304,7 +338,10 @@ void free_all(char ***ship, stroop **army, obs **objects, int n)
 
     free(*ship);
     free(*army);
-    free(*objects);
+    if(obstacles != 0)
+    {
+        free(*objects);
+    }
 }
 
 void print_board(char **ship, int n, int m)
@@ -397,13 +434,13 @@ void inisialize_board(char ***ship, int n, int m)
 {
     int i, j; 
 
-    *ship = (char **)malloc(n * sizeof(char *)); 
+    *ship = (char**) malloc(n * sizeof(char*)); 
 
     check_malloc(*ship);
 
     for(i = 0; i < n; i++)
     {
-        (*ship)[i] = (char *)malloc(m * sizeof(char)); 
+        (*ship)[i] = (char*) malloc(m * sizeof(char)); 
         check_malloc((*ship)[i]);
     }
 
@@ -423,54 +460,40 @@ void generate_level_dependant(int level, int n, int m, int *storm, int *obstacle
         case 1:
             *storm = n * m * 2 / 100;
 
-            if (*storm < 2)
-            {
-                *storm = 2;
-            }
-            
             *obstacles = n * m * 13 / 100;
          break;
 
         case 2:
             *storm = n * m * 5 / 100;
 
-            if (*storm < 2)
-            {
-                *storm = 2;
-            }
-            
             *obstacles = n * m * 10 / 100;
          break;
     
         case 3:
             *storm = n * m * 10 / 100;
 
-            if (*storm < 2)
-            {
-                *storm = 2;
-            }
-            
             *obstacles = n * m * 5 / 100;
          break;
         
         case 4:
             *storm = n * m * 15 / 100;
-            
-            if (*storm < 2)
-            {
-                *storm = 2;
-            }
-            
+
             *obstacles = 0; //evil option :(
          break;
     }
+
+    if (*storm < 2)
+    {
+        *storm = 2;
+    }
+            
 }
 
 void generate_stormtroopers(char ***ship, stroop **army, int n, int m, int storm)
 {
     int i, x, y;
 
-    *army = (stroop *)malloc(storm * sizeof(stroop));
+    *army = (stroop*) malloc(storm * sizeof(stroop));
     check_malloc(*army);
 
     for(i = 0; i < storm; i++)
@@ -490,18 +513,8 @@ void generate_stormtroopers(char ***ship, stroop **army, int n, int m, int storm
         (*army)[i].y = y;
         (*army)[i].alive = 1;
 
-        switch(rand() % 2)
-        {
-            case 0:
-                (*army)[i].direction = 0; // horimove_leiazontal movement for the stromtrooper
-                (*army)[i].bounds = rand() % 2; // 0 for right, 1 for left
-             break;
-
-            case 1:
-                (*army)[i].direction = 1; // vertical movement for the stormtrooper
-                (*army)[i].bounds = rand() % 2; // 0 for down, 1 for up
-             break;
-        }
+        (*army)[i].direction = rand() % 2; // 0 for horizontal movement, 1 for vertical movement
+        (*army)[i].bounds = rand() % 2; // 0 for right, 1 for left or 0 for down, 1 for up
     }
 
     // print_board(*ship, n, m);
@@ -512,7 +525,7 @@ void generate_vader(char ***ship, darth *vader, int n, int m)
     int i;
 
     i = random_number(4);
-    // i have to change the switch so i can function with n > m or m > n
+
     switch(i + 1)
     {
         case 1:
@@ -549,7 +562,7 @@ void generate_obsticles(char ***ship, obs **objects, int n, int m, int obstacles
 {
     int i, x, y;
 
-    *objects =  (obs*) malloc(obstacles * sizeof(obs));
+    *objects = (obs*) malloc(obstacles * sizeof(obs));
     check_malloc(*objects);
 
     for(i = 0; i < obstacles; i++)
@@ -615,101 +628,130 @@ void generate_r2d2(char ***ship, r2d2 *r2, int n, int m)
     r2 -> found = 0;
 }
 
-void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm, int *injured, int leia_x, int leia_y, int i)
+void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm /*int i*/, int *injured, int leia_x, int leia_y)
 {
-    if(i == 0)
+    int i;
+    // if(i < 0)
+    // {
+    //     return;
+    // }
+    // else if((*army)[i].alive == 0)
+    // {
+    //     move_stormtroopers(ship, army, n, m, i - 1, injured, leia_x, leia_y);
+    // }
+    for(i = 0; i < storm; i++)
     {
-        return;
-    }
-        if(!(*army)[i].alive)
+        if((*army)[i].alive == 0)
         {
-           move_stormtroopers(ship, army, n, m, storm, injured, leia_x, leia_y, i - 1);
-        }
-
-        (*ship)[(*army)[i].x][(*army)[i].y] = '#';
-
-        switch((*army)[i].direction)
-        {
-            case 0: // horizontal movment
-                switch((*army)[i].bounds) 
-                {
-                    case 0: // 0 for right
-                        if((*army)[i].y + 1 > m - 1 || ((*ship)[(*army)[i].x][(*army)[i].y + 1] != '#' && (*ship)[(*army)[i].x][(*army)[i].y + 1] != '.' && (*ship)[(*army)[i].x][(*army)[i].y + 1] != 'L'))
-                        {
-                            (*army)[i].bounds = 1;
-                            (*army)[i].y--;
-                        }
-                        else if((*ship)[(*army)[i].x][(*army)[i].y + 1] != '@' && (*ship)[(*army)[i].x][(*army)[i].y + 1] != 'D' && (*ship)[(*army)[i].x][(*army)[i].y + 1] != 'R')
-                        {
-                            (*army)[i].y++;
-                        }
-                     break;
-
-                    case 1: // 1 for left
-                        if((*army)[i].y - 1  < 0 || ((*ship)[(*army)[i].x][(*army)[i].y - 1] != '#' && (*ship)[(*army)[i].x][(*army)[i].y - 1] != '.' && (*ship)[(*army)[i].x][(*army)[i].y - 1] != 'L'))
-                        {
-                            (*army)[i].bounds = 0;
-                            (*army)[i].y++;
-                        }
-                        else if((*ship)[(*army)[i].x][(*army)[i].y - 1] != '@' && (*ship)[(*army)[i].x][(*army)[i].y - 1] != 'D' && (*ship)[(*army)[i].x][(*army)[i].y - 1] != 'R')
-                        {
-                            (*army)[i].y--;
-                        }
-                     break;
-                }
-             break;
-
-            case 1: // vertical movement
-                switch((*army)[i].bounds) // 0 for down
-                {
-                    case 0:
-                        if((*army)[i].x + 1 > n - 1 || ((*ship)[(*army)[i].x + 1][(*army)[i].y] != '#' && (*ship)[(*army)[i].x + 1][(*army)[i].y] != '.' && (*ship)[(*army)[i].x + 1][(*army)[i].y] != 'L'))
-                        {
-                            (*army)[i].bounds = 1;
-                            (*army)[i].x--;
-                        }
-                        else if((*ship)[(*army)[i].x + 1][(*army)[i].y] != '@' && (*ship)[(*army)[i].x + 1][(*army)[i].y] != 'D' && (*ship)[(*army)[i].x + 1][(*army)[i].y] != 'R')
-                        {
-                            (*army)[i].x++;
-                        }
-                     break;
-
-                    case 1: // 1 for up
-                        if((*army)[i].x - 1 < 0 || ((*ship)[(*army)[i].x - 1][(*army)[i].y] != '#' && (*ship)[(*army)[i].x - 1][(*army)[i].y] != '.' && (*ship)[(*army)[i].x - 1][(*army)[i].y] != 'L'))
-                        {
-                            (*army)[i].bounds = 0;
-                            (*army)[i].x++;
-                        }
-                        else if((*ship)[(*army)[i].x - 1][(*army)[i].y] != '@' && (*ship)[(*army)[i].x - 1][(*army)[i].y] != 'D' && (*ship)[(*army)[i].x - 1][(*army)[i].y] != 'R')
-                        {
-                            (*army)[i].x--;
-                        }
-                     break;
-                }
-             break;
+            continue;
         }
         
+        (*ship)[(*army)[i].x][(*army)[i].y] = '#';
+
+
+        if((*army)[i].direction == 0 && (*army)[i].bounds == 0) // right movement
+        {
+            if((*army)[i].y + 1 <= m - 1 && ((*ship)[(*army)[i].x][(*army)[i].y + 1] == '#' || (*ship)[(*army)[i].x][(*army)[i].y + 1] == '.' || (*ship)[(*army)[i].x][(*army)[i].y + 1] == 'L'))
+            {
+                (*army)[i].y++;
+            }
+            else if((*army)[i].y - 1 >= 0 && ((*ship)[(*army)[i].x][(*army)[i].y - 1] == '#' || (*ship)[(*army)[i].x][(*army)[i].y - 1] == '.' || (*ship)[(*army)[i].x][(*army)[i].y - 1] == 'L'))
+            {
+                (*army)[i].bounds = 0;
+                (*army)[i].y--;
+            }
+            else
+            {
+                (*ship)[(*army)[i].x][(*army)[i].y] = '@';
+                continue;
+                //move_stormtroopers(ship, army, n, m, i - 1, injured, leia_x, leia_y);
+            }
+        }
+        else if((*army)[i].direction == 0 && (*army)[i].bounds == 1) // left movement
+        {
+            if((*army)[i].y - 1 >= 0 && ((*ship)[(*army)[i].x][(*army)[i].y - 1] == '#' || (*ship)[(*army)[i].x][(*army)[i].y - 1] == '.' || (*ship)[(*army)[i].x][(*army)[i].y - 1] == 'L'))
+            {
+                (*army)[i].y--;
+            }
+            else if((*army)[i].y + 1 <= m - 1 && ((*ship)[(*army)[i].x][(*army)[i].y + 1] == '#' || (*ship)[(*army)[i].x][(*army)[i].y + 1] == '.' || (*ship)[(*army)[i].x][(*army)[i].y + 1] == 'L'))
+            {
+                (*army)[i].bounds = 1;
+                (*army)[i].y++;
+            }
+            else
+            {
+                (*ship)[(*army)[i].x][(*army)[i].y] = '@';
+                continue;
+                //move_stormtroopers(ship, army, n, m, i - 1, injured, leia_x, leia_y);
+            }
+        }
+        else if((*army)[i].direction == 1 && (*army)[i].bounds == 0) // down movement
+        {
+            if((*army)[i].x + 1 <= n - 1 && ((*ship)[(*army)[i].x + 1][(*army)[i].y] == '#' || (*ship)[(*army)[i].x + 1][(*army)[i].y] == '.' || (*ship)[(*army)[i].x + 1][(*army)[i].y] == 'L'))
+            {
+                (*army)[i].x++;
+            }
+            else if((*army)[i].x - 1 >= 0 && ((*ship)[(*army)[i].x - 1][(*army)[i].y] == '#' || (*ship)[(*army)[i].x - 1][(*army)[i].y] == '.' || (*ship)[(*army)[i].x - 1][(*army)[i].y] == 'L'))
+            {
+                (*army)[i].bounds = 1;
+                (*army)[i].x--;
+            }
+            else
+            {
+                (*ship)[(*army)[i].x][(*army)[i].y] = '@';
+                continue;
+                //move_stormtroopers(ship, army, n, m, i - 1, injured, leia_x, leia_y);
+
+            }
+        }
+        else if((*army)[i].direction == 1 && (*army)[i].bounds == 1) // up movement
+        {
+            if((*army)[i].x - 1 >= 0 && ((*ship)[(*army)[i].x - 1][(*army)[i].y] == '#' || (*ship)[(*army)[i].x - 1][(*army)[i].y] == '.' || (*ship)[(*army)[i].x - 1][(*army)[i].y] == 'L'))
+            {
+                (*army)[i].x--;
+            }
+            else if((*army)[i].x + 1 <= n - 1 && ((*ship)[(*army)[i].x + 1][(*army)[i].y] == '#' || (*ship)[(*army)[i].x + 1][(*army)[i].y] == '.' || (*ship)[(*army)[i].x + 1][(*army)[i].y] == 'L'))
+            {
+                (*army)[i].bounds = 0;
+                (*army)[i].x++;
+            }
+            else
+            {
+                (*ship)[(*army)[i].x][(*army)[i].y] = '@';
+                continue;
+                //move_stormtroopers(ship, army, n, m, i - 1, injured, leia_x, leia_y);
+            }
+        }
+
         if((*army)[i].x == leia_x && (*army)[i].y == leia_y)
         {
+
             (*injured)++;
             (*army)[i].alive = 0;
             (*army)[i].x = -1;
             (*army)[i].y = -1;
-            puts("Leia was caugh by a stormtrooper! But she managed to kill him!");
-            puts("Now leia is injured, next time she will encounter a stormtrooper she will die!");
+
+            if(*injured == 1)
+            {
+                puts("Leia was caugh by a stormtrooper! But she managed to kill him!");
+                puts("Now leia is injured, next time she will encounter a stormtrooper she will die!");
+                move_stormtroopers(ship, army, n, m, i - 1, injured, leia_x, leia_y);
+            }
+            else
+            {
+                puts("Leia was caught by a stormtrooper and because she was injured she got captured!");
+                return;
+            }
+
         }
-        
-        if((*injured) > 1)
-        {
-            return;
-        }
-        //print_board(*ship, n, m);
-        if((*army)[i].alive)
+
+        if((*army)[i].alive == 1)
         {
             (*ship)[(*army)[i].x][(*army)[i].y] = '@';
         }
 
-    move_stormtroopers(ship, army, n, m, storm, injured, leia_x, leia_y, i - 1);
+        //move_stormtroopers(ship, army, n, m, i - 1, injured, leia_x, leia_y);
+    }
 }
 
 int move_vader(char ***ship, darth *vader, int leia_x, int leia_y)
@@ -823,6 +865,7 @@ int move_vader(char ***ship, darth *vader, int leia_x, int leia_y)
     
     if(vader -> x == leia_x && vader -> y == leia_y)
     {
+        puts("Leia was caught by Darth Vader and was captured!!");
         return 1;
     }
 
