@@ -182,15 +182,14 @@ int main(void)
         printf(", Moves: %d, ", leia.moves);
         printf("Force uses: %d", 2 - force_limit);
 
-        //print_board(ship, n, m); // the real print table
+        print_board(ship, n, m); // the real print table
 
         fill_board(&ship, n, m, r2, army, storm);
-        print_board(ship, n, m);
+        //print_board(ship, n, m); // its throught out the code i have it for debugging perpuses 
         choice = read_input(&cords1, &cords2, &moveset, &len, &force_limit);
 
         help = 0;
-
-        // I wanted to do it in a switch case but cant operate it with the breaks     
+  
         if(choice == 'x')
         {
             free_all(&ship, &army, &objects, n, obstacles);
@@ -323,7 +322,7 @@ void move_enemies(char ***ship, stroop **army, int storm, darth *vader, int *cap
         *captured = move_vader(ship, vader, leia -> x, leia -> y);
     }
 
-    move_stormtroopers(ship, army, n, m, storm /*- 1*/, &(leia -> injured), leia -> x, leia -> y);
+    move_stormtroopers(ship, army, n, m, storm, &(leia -> injured), leia -> x, leia -> y);
 }
 
 
@@ -419,6 +418,8 @@ int read_text(char str[], int size, int flag)
         
         return len;
     }
+
+    return EOF;
 }
 
 int random_number(int n)
@@ -631,21 +632,13 @@ void generate_r2d2(char ***ship, r2d2 *r2, int n, int m)
 void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm /*int i*/, int *injured, int leia_x, int leia_y)
 {
     int i;
-    // if(i < 0)
-    // {
-    //     return;
-    // }
-    // else if((*army)[i].alive == 0)
-    // {
-    //     move_stormtroopers(ship, army, n, m, i - 1, injured, leia_x, leia_y);
-    // }
     for(i = 0; i < storm; i++)
     {
         if((*army)[i].alive == 0)
         {
             continue;
         }
-        
+
         (*ship)[(*army)[i].x][(*army)[i].y] = '#';
 
 
@@ -664,7 +657,6 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm /*i
             {
                 (*ship)[(*army)[i].x][(*army)[i].y] = '@';
                 continue;
-                //move_stormtroopers(ship, army, n, m, i - 1, injured, leia_x, leia_y);
             }
         }
         else if((*army)[i].direction == 0 && (*army)[i].bounds == 1) // left movement
@@ -682,7 +674,6 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm /*i
             {
                 (*ship)[(*army)[i].x][(*army)[i].y] = '@';
                 continue;
-                //move_stormtroopers(ship, army, n, m, i - 1, injured, leia_x, leia_y);
             }
         }
         else if((*army)[i].direction == 1 && (*army)[i].bounds == 0) // down movement
@@ -700,8 +691,6 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm /*i
             {
                 (*ship)[(*army)[i].x][(*army)[i].y] = '@';
                 continue;
-                //move_stormtroopers(ship, army, n, m, i - 1, injured, leia_x, leia_y);
-
             }
         }
         else if((*army)[i].direction == 1 && (*army)[i].bounds == 1) // up movement
@@ -719,7 +708,6 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm /*i
             {
                 (*ship)[(*army)[i].x][(*army)[i].y] = '@';
                 continue;
-                //move_stormtroopers(ship, army, n, m, i - 1, injured, leia_x, leia_y);
             }
         }
 
@@ -749,15 +737,14 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm /*i
         {
             (*ship)[(*army)[i].x][(*army)[i].y] = '@';
         }
-
-        //move_stormtroopers(ship, army, n, m, i - 1, injured, leia_x, leia_y);
     }
 }
 
 int move_vader(char ***ship, darth *vader, int leia_x, int leia_y)
 {
     (*ship)[vader -> x][vader -> y] = '#';
-
+    // For this methond i did it in papper and it represents how far vader and leia are
+    //based on the dx and dy it always does the best move it can to get closer to leia
     int dx = leia_x - vader -> x;
     int dy = leia_y - vader -> y;
 
@@ -981,7 +968,7 @@ char read_input(char **token, char **token2, char **moveset, int *size, int *for
         printf("Enter your choice: "); 
         len = read_text(str, 100, 1);
 
-        *token = strtok(str, ">");
+        *token = strtok(str, ">"); // to see if the user inputed a force command
         if(*token != NULL)
         {
             *token2 = strtok(NULL, ">");
@@ -1003,11 +990,11 @@ char read_input(char **token, char **token2, char **moveset, int *size, int *for
 
         choice = tolower(str[0]);
 
-        if((choice == 'h' || choice == 'x') && len == 1)
+        if((choice == 'h' || choice == 'x') && len == 1) // checking for help or exit, syntax sesitive, but case insensitive
         {
             return choice;
         }
-        else
+        else // else its moves for leia
         {
             for(i = 0; i < len; i++)
             {
@@ -1016,15 +1003,16 @@ char read_input(char **token, char **token2, char **moveset, int *size, int *for
                     str[i] = tolower(str[i]);
                 }
     
-                if(str[i] != 'u' && str[i] != 'd' && str[i] != 'l' && str[i] != 'r')
+                if(str[i] != 'u' && str[i] != 'd' && str[i] != 'l' && str[i] != 'r') // if its somethign diffrent its nothing so stop
                 {
                     break;
                 }
             }
     
-            if(i == len)
+            if(i == len) // checking if all went right
             {
-                *moveset = (char *)malloc(len * sizeof(char));
+                *moveset = (char *)malloc(len * sizeof(char)); 
+                // i choose to do a malloc here so i can keep the dynamic theme and not send the static buffer
                 check_malloc(*moveset);
     
                 for(i = 0; i < len; i++)
@@ -1037,7 +1025,7 @@ char read_input(char **token, char **token2, char **moveset, int *size, int *for
             }
         }
         
-        printf("Invalid choice. Please enter a valid move\n");
+        puts("\nInvalid choice. Please enter a valid move");
     }
 }
 
@@ -1076,7 +1064,7 @@ int using_force(char ***ship, char *token, char *token2, obs **objects, int obst
 
     if(!dig1 || !dig2 || !let1 || !let2)
     {
-        puts("Invalid input. Please enter a valid move");
+        puts("\nInvalid input. Please enter a valid move");
         return 1;
     }
     
@@ -1084,7 +1072,7 @@ int using_force(char ***ship, char *token, char *token2, obs **objects, int obst
     x1 = atoi(token + let1) - 1;
     if(x1 < 0 || x1 > n - 1)
     {
-        puts("Invalid input. Please enter a valid move");
+        puts("\nInvalid input. Please enter a valid move");
         return 1;
     }
 
@@ -1096,7 +1084,7 @@ int using_force(char ***ship, char *token, char *token2, obs **objects, int obst
     
         case 2:
             y1 = token[1];
-            switch(token[0])
+            switch(token[0]) // calculates double letter cord, maths done in papper
             {
                 case 0:
                     y1 += 26;
@@ -1111,14 +1099,14 @@ int using_force(char ***ship, char *token, char *token2, obs **objects, int obst
 
     if(y1 < 0 || y1 > m - 1)
     {
-        puts("Invalid input. Please enter a valid move");
+        puts("\nInvalid input. Please enter a valid move");
         return 1;
     }
 
     x2 = atoi(token2 + let2) - 1;
     if(x2 < 0 || x2 > n - 1)
     {
-        puts("Invalid input. Please enter a valid move");
+        puts("\nInvalid input. Please enter a valid move");
         return 1;
     }
 
@@ -1130,7 +1118,7 @@ int using_force(char ***ship, char *token, char *token2, obs **objects, int obst
     
         case 2:
             y2 = token2[1];
-            switch(token2[0])
+            switch(token2[0]) // calculates double letter cord, maths done in papper
             {
                 case 0:
                     y2 += 26;
@@ -1145,24 +1133,24 @@ int using_force(char ***ship, char *token, char *token2, obs **objects, int obst
 
     if(y2 < 0 || y2 > m - 1)
     {
-        puts("Invalid input. Please enter a valid move");
+        puts("\nInvalid input. Please enter a valid move");
         return 1;
     }
 
     if((*ship)[x2][y2] != '#' && (*ship)[x2][y2] != '.')
     {
-        puts("Cant move object on the tile you want because someone or something is on the destination :(");
+        puts("\nCant move object on the tile you want because someone or something is on the destination :(");
         return 1;
     }
     else if((*ship)[x1][y1] != 'X')
     {
-        puts("You cant move an object that is not an obstacle");
+        puts("\nYou cant move an object that is not an obstacle");
         return 1;
     }
 
     for(i = 0; i < obstacles; i++)
     {
-        if((*objects)[i].x == x1 && (*objects)[i].y == y1)
+        if((*objects)[i].x == x1 && (*objects)[i].y == y1) // finding the right obstacle to move and to change its cords
         {
             (*ship)[(*objects)[i].x][(*objects)[i].y] = '#';
             (*objects)[i].x = x2;
