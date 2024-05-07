@@ -226,13 +226,14 @@ int main(void)
         {
             if(obstacles == 0)
             {
-                puts("\nThere aernt any obstacles to move, please enter a valid move!\n");
+                puts("\nThere arent any obstacles to move, please enter a valid move!\n");
                 continue;
             }
 
             if(force_limit > 2)
             {
                 puts("\nYou have reached the force limit for this game!\n");
+                force_limit--;
                 continue;
             }
 
