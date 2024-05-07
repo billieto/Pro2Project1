@@ -650,7 +650,7 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm /*i
             }
             else if((*army)[i].y - 1 >= 0 && ((*ship)[(*army)[i].x][(*army)[i].y - 1] == '#' || (*ship)[(*army)[i].x][(*army)[i].y - 1] == '.' || (*ship)[(*army)[i].x][(*army)[i].y - 1] == 'L'))
             {
-                (*army)[i].bounds = 0;
+                (*army)[i].bounds = 1;
                 (*army)[i].y--;
             }
             else
@@ -667,7 +667,7 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm /*i
             }
             else if((*army)[i].y + 1 <= m - 1 && ((*ship)[(*army)[i].x][(*army)[i].y + 1] == '#' || (*ship)[(*army)[i].x][(*army)[i].y + 1] == '.' || (*ship)[(*army)[i].x][(*army)[i].y + 1] == 'L'))
             {
-                (*army)[i].bounds = 1;
+                (*army)[i].bounds = 0;
                 (*army)[i].y++;
             }
             else
@@ -723,7 +723,6 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int storm /*i
             {
                 puts("Leia was caugh by a stormtrooper! But she managed to kill him!");
                 puts("Now leia is injured, next time she will encounter a stormtrooper she will die!");
-                move_stormtroopers(ship, army, n, m, i - 1, injured, leia_x, leia_y);
             }
             else
             {
