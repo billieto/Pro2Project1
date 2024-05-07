@@ -88,8 +88,8 @@ int main(void)
 
     r2.found = 1;
 
-    srand(13); // My debuggind was done in this seed
-    //srand(time(NULL)); 
+    //srand(13); // My debuggind was done in this seed
+    srand(time(NULL)); 
     //A small manual for a more friendly experiance to the user <3
     puts("\n\nWelcome to a galaxy far, far away...\n");
     puts("Before you start your jurney you have to know some keen things.\n");
