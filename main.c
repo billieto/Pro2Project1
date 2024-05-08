@@ -3,7 +3,7 @@
 // E-mail: dit23037@go.uop.gr
 //
 // Name: Milonas Nikolaos
-// AM: 2022202300
+// AM: 2022202300128
 // E-mail: dit23128@go.uop.gr
 
 #include <stdio.h>
@@ -68,8 +68,6 @@ void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2
 char read_input(char **token, char **token2, char **moveset, int *size, int *force_limit); // function to read the user input and determen what he wants to do 
 int random_number(int n); // generates a random number between 0 and n - 1, took the idea from mr. Trifonopoulos slides
 int read_text(char str[], int size, int flag); // from mr. Tselika's book, it return the size and checks if the input got through just fine
-void move_enemies(char ***ship, stroop **army, int storm, darth *vader, int *captured, princess *leia, int n, int m);
-
 
 int main(void)
 {
@@ -92,16 +90,17 @@ int main(void)
     srand(time(NULL)); 
     //A small manual for a more friendly experiance to the user <3
     puts("\n\nWelcome to a galaxy far, far away...\n");
-    puts("Before you start your jurney you have to know some keen things.\n");
-    puts("1) Leia can move upwards, downwards, right and left (u/U, d/D, r/R, l/L), she cant move into obstacles, Stormtroopers and Darth Vader.");
-    puts("2) The player can input multiple moves as one so he cannot waste time, but in the first move she cant do Leia will stop the moveset");
+
+    puts("Before you start your journey you have to know some basic things.\n");
+    puts("1) Leia can move upwards, downwards, right and left (u/U, d/D, r/R, l/L), she can't move into obstacles, Stormtroopers and Darth Vader.");
+    puts("2) The player can input multiple moves as one so he cannot waste time, but in the first move she can't do, Leia will stop the moveset");
     puts("3) The first time Leia gets caught by a Stormtrooper she will kill him. If she is caught again she will die. This resets every level.");
-    puts("4) Darthvader moves every 2 moves of Leia and always goes after her, also he does diagnal moves.");
+    puts("4) Darthvader moves every 2 moves of Leia, always going after her. He also does diagnal moves.");
     puts("5) To proceed to the next level leia must find R2D2, basicly to be in the same tile as him.");
     puts("6) Stormtroopers do horizontal or vertical movement only, if for some reason they cant proceed their move they change direction.");
-    puts("7) Leia can use her powers to move obstacles (f/F), she can only do this 2 times per level and cannot place an obstacles on top of another, a Stormtrooper, Darth Vader or R2D2");
+    puts("7) Leia can use her powers to move obstacles, she can only do this 2 times per level and cannot place an obstacles on top of another, a Stormtrooper, Darth Vader or R2D2");
     puts("8) Leia can use the help of Master Yoda to reveal the board for one move (h/H)");
-    puts("9) Every command counts as a move");
+    puts("9) The right syntax to move an obstacles x1y1>x2y2. For Example: P13>A21, Aa1>c45.");
     puts("10) If the player dosent want to play anymore he can input 'x' or 'X'");
     puts("11) For the player to win the game he must get to the minium board with is 10 x 10");
     puts("12) 'L' is Leia, '@' are the Stormtroopers, 'X' are the obstacles, 'D' is Darth Vader and 'R' is R2D2\n\n\n");
@@ -109,11 +108,13 @@ int main(void)
     // Just a note, i put curly brackets in the if statements to make the code more readable 
     //and if someone need to fix something he dosent have to put them and make his life harder
 
-    printf("Enter the number of cols (Minumun is 30 and Maximum is 99): ");       
+    puts("Now, to proceed you need to adjust your ships size\n");
+
+    printf("Enter the number of collums (Minumun is 30 and Maximum is 99): ");       
     scanf("%d", &n);
     while(n < 30 || n > 99) 
     {
-        printf("Invalid number of cols. Please enter a number between 30 and 99: ");
+        printf("Invalid number of collums. Please enter a number between 30 and 99: ");
         scanf("%d", &n); 
     } 
 
@@ -170,7 +171,7 @@ int main(void)
 
         cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
 
-        printf("Level: %d, ", level);
+        printf("\n\nLevel: %d, ", level);
         if(leia.injured == 1)
         {
             printf("Leia status: Injured!!!");
@@ -199,10 +200,13 @@ int main(void)
         {
             for(i = 0; i < len; i++)
             {
+                leia.moves++;
+
                 flag_l = move_leia(&ship, &leia, &r2, moveset, n, m, i);
                 if(flag_l) // flag is if leias moves are invalid
                 {
                     puts("\n\nBecause you impoted a moveset that cannot be done, leia performed the moves she can do until the move she cant do is reached\n");
+                    leia.moves--;
                     break;
                 }
 
@@ -212,12 +216,21 @@ int main(void)
                     break;
                 }
 
-               move_enemies(&ship, &army, storm, &vader, &captured, &leia, n, m);
+                if(leia.moves % 2 == 0)
+                {
+                    captured = move_vader(&ship, &vader, leia.x, leia.y);
+                }
 
-               if(captured || leia.injured > 1)
-               {
-                   break;
-               }
+                if(captured)
+                {
+                    break;
+                }
+
+                move_stormtroopers(&ship, &army, n, m, 0, storm, &leia.injured, leia.x, leia.y);
+                if(leia.injured > 1)
+                {
+                    break;
+                }
             }
 
             free(moveset);
@@ -243,14 +256,10 @@ int main(void)
                 force_limit--;
                 continue;
             }
-
-            move_enemies(&ship, &army, storm, &vader, &captured, &leia, n, m);
         }
         else if(choice == 'h')
         {
             help = 1;
-
-            move_enemies(&ship, &army, storm, &vader, &captured, &leia, n, m);    
         }
 
         if(captured || leia.injured > 1)
@@ -313,19 +322,6 @@ int main(void)
 
     return 0;
 }// end of main
-
-void move_enemies(char ***ship, stroop **army, int storm, darth *vader, int *captured, princess *leia, int n, int m)
-{
-    (leia -> moves)++;
-
-    if((leia -> moves) % 2 == 0)
-    {
-        *captured = move_vader(ship, vader, leia -> x, leia -> y);
-    }
-
-    move_stormtroopers(ship, army, n, m, 0, storm, &(leia -> injured), leia -> x, leia -> y);
-}
-
 
 void free_all(char ***ship, stroop **army, obs **objects, int n, int obstacles)
 {
@@ -1008,8 +1004,8 @@ char read_input(char **token, char **token2, char **moveset, int *size, int *for
     
             if(i == len) // checking if all went right
             {
-                *moveset = (char *)malloc(len * sizeof(char)); 
-                // i choose to do a malloc here so i can keep the dynamic theme and not send the static buffer
+                *moveset = (char*) malloc(len * sizeof(char)); 
+                // i choose to do a malloc here so i}000000000000 can keep the dynamic theme and not send the static buffer
                 check_malloc(*moveset);
     
                 for(i = 0; i < len; i++)
