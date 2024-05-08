@@ -661,8 +661,8 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int i, int st
             (*ship)[(*army)[i].x][(*army)[i].y] = '@';
         }
     }
-    else if((*army)[i].direction == 0 && (*army)[i].bounds == 1)
-    { // left movement
+    else if((*army)[i].direction == 0 && (*army)[i].bounds == 1) // left movement
+    {
         if((*army)[i].y - 1 >= 0 && ((*ship)[(*army)[i].x][(*army)[i].y - 1] == '#' || (*ship)[(*army)[i].x][(*army)[i].y - 1] == '.' || (*ship)[(*army)[i].x][(*army)[i].y - 1] == 'L'))
         {
             (*army)[i].y--;
@@ -677,8 +677,8 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int i, int st
             (*ship)[(*army)[i].x][(*army)[i].y] = '@';
         }
     }
-    else if((*army)[i].direction == 1 && (*army)[i].bounds == 0)
-    { // down movement
+    else if((*army)[i].direction == 1 && (*army)[i].bounds == 0) // down movement
+    { 
         if((*army)[i].x + 1 <= n - 1 && ((*ship)[(*army)[i].x + 1][(*army)[i].y] == '#' || (*ship)[(*army)[i].x + 1][(*army)[i].y] == '.' || (*ship)[(*army)[i].x + 1][(*army)[i].y] == 'L'))
         {
             (*army)[i].x++;
@@ -693,7 +693,8 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int i, int st
             (*ship)[(*army)[i].x][(*army)[i].y] = '@';
         }
     }
-    else if((*army)[i].direction == 1 && (*army)[i].bounds == 1) { // up movement
+    else if((*army)[i].direction == 1 && (*army)[i].bounds == 1) // up movement
+    {
         if ((*army)[i].x - 1 >= 0 && ((*ship)[(*army)[i].x - 1][(*army)[i].y] == '#' || (*ship)[(*army)[i].x - 1][(*army)[i].y] == '.' || (*ship)[(*army)[i].x - 1][(*army)[i].y] == 'L'))
         {
             (*army)[i].x--;
