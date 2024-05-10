@@ -110,22 +110,23 @@ int main(void)
 
     puts("Now, to proceed you need to adjust your ships size\n");
 
-    printf("Enter the number of collums (Minumun is 30 and Maximum is 99): ");       
+    printf("Enter the number of collums (Minumun is 20 and Maximum is 45): ");       
     scanf("%d", &n);
-    while(n < 30 || n > 99) 
+    while(n < 20 || n > 45) 
     {
-        printf("Invalid number of collums. Please enter a number between 30 and 99: ");
+        printf("Invalid number of collums. Please enter a number between 20 and 45: ");
         scanf("%d", &n); 
     } 
 
-    printf("Enter the number of rows (Minumun is 25 and Maximum is 58): ");
+    printf("Enter the number of rows (Minumun is 20 and Maximum is 58): ");
     scanf("%d", &m); 
-    while(m < 25 || m > 58)
+    while(m < 20 || m > 45)
     {
-        printf("Invalid number of rows. Please enter a number between 25 and 58: ");
+        printf("Invalid number of rows. Please enter a number between 20 and 58: ");
         scanf("%d", &m);
     }
-
+    // The number for the collums and the rows were adjust to seem right in a terminal running in pelopas.uop.gr
+    // And so the player can have an enjoyable playthrough 
     starting_m = m;
     staring_n = n;
 
