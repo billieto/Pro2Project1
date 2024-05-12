@@ -13,6 +13,14 @@
 #include <ctype.h>
 
 #define MAX_SIZE 100
+#define MIN_COLS 20
+#define MAX_COLS 45
+#define MIN_ROWS 20
+#define MAX_ROWS 58
+#define WIN_COLS 10
+#define WIN_ROWS 10
+#define TRUE 1
+#define FALSE 0
 
 // Where x and y the cordinates of the character/ obstacle (x,y) in the 2D array
 typedef struct stormtrooper
@@ -73,7 +81,7 @@ int read_text(char str[], int size, int flag); // from mr. Tselika's book, it re
 
 int main(void)
 {
-    int i, n, m, diff = 2, storm = 2, obstacles, level = 1, len = 0, flag_l = 0, captured = 0, help = 0, force_limit = 0, flag_f = 0;
+    int i, n, m, diff = 2, storm = 2, obstacles, level = 1, len = 0, flag_l = FALSE, captured = FALSE, help = FALSE, force_limit = 0, flag_f = FALSE;
     int starting_m, staring_n;
     // "storm" is the amount of stormtroopers there are on the board, "obstacles" does the same job as "storm", i enter values to veriables to be sure
     char **ship = NULL; // this is the 2D array used to play the game
@@ -86,7 +94,7 @@ int main(void)
     princess leia; 
     r2d2 r2; 
 
-    r2.found = 1;
+    r2.found = TRUE;
 
     //srand(13); // My debuggind was done in this seed
     srand(time(NULL)); 
@@ -105,26 +113,26 @@ int main(void)
     puts("9) The right syntax to move an obstacles x1y1>x2y2. For Example: P13>A21, Aa1>c45.");
     puts("10) If the player dosent want to play anymore he can input 'x' or 'X'");
     puts("11) For the player to win the game he must get to the minium board with is 10 x 10");
-    puts("12) Leia can do up to 100 moves in the same input");
+    printf("12) Leia can do up to %d moves in the same input\n", MAX_SIZE);
     puts("13) 'L' is Leia, '@' are the Stormtroopers, 'X' are the obstacles, 'D' is Darth Vader and 'R' is R2D2\n\n\n");
     // Just a note, i put curly brackets in the if statements to make the code more readable 
     //and if someone need to fix something he dosent have to put them and make his life harder
 
     puts("Now, to proceed you need to adjust your ships size\n");
 
-    printf("Enter the number of collums (Minumun is 20 and Maximum is 45): ");       
+    printf("Enter the number of collums (Minumun is %d and Maximum is %d): ", MIN_COLS, MAX_COLS);       
     scanf("%d", &n);
-    while(n < 20 || n > 45) 
+    while(n < MIN_COLS || n > MAX_COLS) 
     {
-        printf("Invalid number of collums. Please enter a number between 20 and 45: ");
+        printf("Invalid number of collums. Please enter a number between %d and %d: ", MIN_COLS, MAX_COLS);
         scanf("%d", &n); 
     } 
 
-    printf("Enter the number of rows (Minumun is 20 and Maximum is 58): ");
+    printf("Enter the number of rows (Minumun is %d and Maximum is %d): ", MIN_ROWS, MAX_ROWS);
     scanf("%d", &m); 
-    while(m < 20 || m > 45)
+    while(m < MIN_ROWS || m > MAX_ROWS)
     {
-        printf("Invalid number of rows. Please enter a number between 20 and 58: ");
+        printf("Invalid number of rows. Please enter a number between %d and %d: ", MIN_ROWS, MAX_ROWS);
         scanf("%d", &m);
     }
     // The number for the collums and the rows were adjust to seem right in a terminal running in pelopas.uop.gr
@@ -145,13 +153,13 @@ int main(void)
 
     while(1)
     {
-        flag_l = 0;
-        flag_f = 0;
+        flag_l = FALSE;
+        flag_f = FALSE;
 
-        if(r2.found == 1 || play_again == 'y')
+        if(r2.found == TRUE || play_again == 'y')
         {
-            captured = 0;
-            force_limit = 0;
+            captured = FALSE;
+            force_limit = FALSE;
             play_again = EOF;
 
             inisialize_board(&ship, n, m);
@@ -175,7 +183,7 @@ int main(void)
         cover_board(&ship, n, m, leia, vader, r2, army, storm, objects, obstacles, help);
 
         printf("\n\nLevel: %d, ", level);
-        if(leia.injured == 1)
+        if(leia.injured == TRUE)
         {
             printf("Leia status: Injured!!!");
         }
@@ -192,7 +200,7 @@ int main(void)
         //print_board(ship, n, m); // its throught out the code i have it for debugging perpuses 
         choice = read_input(&cords1, &cords2, &moveset, &len, &force_limit);
 
-        help = 0;
+        help = FALSE;
   
         if(choice == 'x')
         {
@@ -215,7 +223,7 @@ int main(void)
 
                 if(leia.x == r2.x && leia.y == r2.y)
                 {
-                    r2.found = 1;
+                    r2.found = TRUE;
                     break;
                 }
 
@@ -262,7 +270,7 @@ int main(void)
         }
         else if(choice == 'h')
         {
-            help = 1;
+            help = TRUE;
         }
 
         if(captured || leia.injured > 1)
@@ -293,23 +301,23 @@ int main(void)
                 break;
             }
 
-            r2.found = 1;
+            r2.found = TRUE;
         }
         else if(r2.found)
         {
             free_all(&ship, &army, &objects, n, obstacles);
 
-            if(n > 10)
+            if(n > WIN_COLS)
             {
                 n--;
             }
 
-            if(m > 10)
+            if(m > WIN_ROWS)
             {
                 m--;
             }
 
-            if(n == 10 && m == 10)
+            if(n == WIN_COLS && m == WIN_ROWS)
             {
                 puts("\n\nCongratulations! You have completed the game!\n");
                 break;
@@ -323,7 +331,7 @@ int main(void)
     puts("\n\nThank you for playing!, we hope you liked the game!!");
     puts("Until next time traveler!\n\n");
 
-    return 0;
+    return EXIT_SUCCESS;
 }// end of main
 
 void free_all(char ***ship, stroop **army, obs **objects, int n, int obstacles)
@@ -512,7 +520,7 @@ void generate_stormtroopers(char ***ship, stroop **army, int n, int m, int storm
         
         (*army)[i].x = x;
         (*army)[i].y = y;
-        (*army)[i].alive = 1;
+        (*army)[i].alive = TRUE;
 
         (*army)[i].direction = rand() % 2; // 0 for horizontal movement, 1 for vertical movement
         (*army)[i].bounds = rand() % 2; // 0 for right, 1 for left or 0 for down, 1 for up
@@ -626,7 +634,7 @@ void generate_r2d2(char ***ship, r2d2 *r2, int n, int m)
     
     r2 -> x = x;
     r2 -> y = y;
-    r2 -> found = 0;
+    r2 -> found = FALSE;
 }
 
 void move_stormtroopers(char ***ship, stroop **army, int n, int m, int i, int storm, int *injured, int leia_x, int leia_y)
@@ -636,7 +644,7 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int i, int st
         return;
     }
 
-    if((*army)[i].alive == 0)
+    if((*army)[i].alive == FALSE)
     {
         move_stormtroopers(ship, army, n, m, i + 1, storm, injured, leia_x, leia_y);
         return;
@@ -712,7 +720,7 @@ void move_stormtroopers(char ***ship, stroop **army, int n, int m, int i, int st
     if((*army)[i].x == leia_x && (*army)[i].y == leia_y)
     {
         (*injured)++;
-        (*army)[i].alive = 0;
+        (*army)[i].alive = FALSE;
         (*army)[i].x = -1;
         (*army)[i].y = -1;
 
@@ -849,12 +857,12 @@ int move_vader(char ***ship, darth *vader, int leia_x, int leia_y)
     if(vader -> x == leia_x && vader -> y == leia_y)
     {
         puts("Leia was caught by Darth Vader and was captured!!");
-        return 1;
+        return TRUE;
     }
 
     (*ship)[vader -> x][vader -> y] = 'D';
 
-    return 0;
+    return FALSE;
 }
 
 void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2, stroop *army, int storm, obs *objects, int obstacles, int help)
@@ -862,7 +870,7 @@ void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2
     int i, j;
     switch(help)
     {
-        case 0:
+        case FALSE:
             for(i = 0; i < n; i++)
             {
                 for(j = 0; j < m; j++)
@@ -920,7 +928,7 @@ void cover_board(char ***ship, int n, int m, princess leia, darth vader, r2d2 r2
             }
          break;
 
-        case 1:
+        case TRUE:
         
             for(i =0; i < n; i++)
             {
@@ -1061,7 +1069,7 @@ int using_force(char ***ship, char *token, char *token2, obs **objects, int obst
     if(!dig1 || !dig2 || !let1 || !let2)
     {
         puts("\nInvalid input. Please enter a valid move");
-        return 1;
+        return TRUE;
     }
     
 
@@ -1069,7 +1077,7 @@ int using_force(char ***ship, char *token, char *token2, obs **objects, int obst
     if(x1 < 0 || x1 > n - 1)
     {
         puts("\nInvalid input. Please enter a valid move");
-        return 1;
+        return TRUE;
     }
 
     switch(let1)
@@ -1096,14 +1104,14 @@ int using_force(char ***ship, char *token, char *token2, obs **objects, int obst
     if(y1 < 0 || y1 > m - 1)
     {
         puts("\nInvalid input. Please enter a valid move");
-        return 1;
+        return TRUE;
     }
 
     x2 = atoi(token2 + let2) - 1;
     if(x2 < 0 || x2 > n - 1)
     {
         puts("\nInvalid input. Please enter a valid move");
-        return 1;
+        return TRUE;
     }
 
     switch(let2)
@@ -1136,12 +1144,12 @@ int using_force(char ***ship, char *token, char *token2, obs **objects, int obst
     if((*ship)[x2][y2] != '#' && (*ship)[x2][y2] != '.')
     {
         puts("\nCant move object on the tile you want because someone or something is on the destination :(");
-        return 1;
+        return TRUE;
     }
     else if((*ship)[x1][y1] != 'X')
     {
         puts("\nYou cant move an object that is not an obstacle");
-        return 1;
+        return TRUE;
     }
 
     for(i = 0; i < obstacles; i++)
@@ -1156,7 +1164,7 @@ int using_force(char ***ship, char *token, char *token2, obs **objects, int obst
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int m, int offset_moveset)
@@ -1166,7 +1174,7 @@ int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int 
         case 'l':
             if(leia -> y - 1 < 0 || ((*ship)[leia -> x][leia -> y - 1] != '.' && (*ship)[leia -> x][leia -> y - 1] != '#' && (*ship)[leia -> x][leia -> y - 1] != 'R'))
             {
-                return 1;
+                return TRUE;
             }
             else
             {
@@ -1179,7 +1187,7 @@ int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int 
         case 'r':
             if(leia -> y + 1 > m - 1 || ((*ship)[leia -> x][leia -> y + 1] != '.' && (*ship)[leia -> x][leia -> y + 1] != '#' && (*ship)[leia -> x][leia -> y + 1] != 'R'))
             {
-                return 1;
+                return TRUE;
             }
             else
             {
@@ -1192,7 +1200,7 @@ int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int 
         case 'u':
             if(leia -> x - 1 < 0 || ((*ship)[leia -> x - 1][leia -> y] != '.' && (*ship)[leia -> x - 1][leia -> y] != '#' && (*ship)[leia -> x - 1][leia -> y] != 'R'))
             {
-                return 1;
+                return TRUE;
             }
             else
             {
@@ -1205,7 +1213,7 @@ int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int 
         case 'd':
             if(leia -> x + 1 > n - 1 || ((*ship)[leia -> x + 1][leia -> y] != '.'  && (*ship)[leia -> x + 1][leia -> y] != '#' && (*ship)[leia -> x + 1][leia -> y] != 'R'))
             {
-                return 1;
+                return TRUE;
             }
             else
             {
@@ -1216,5 +1224,5 @@ int move_leia(char ***ship, princess *leia, r2d2 *r2, char *moveset, int n, int 
          break;
     }
 
-    return 0;
+    return FALSE;
 }
