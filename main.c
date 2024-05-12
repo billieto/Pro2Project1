@@ -103,8 +103,8 @@ int main(void)
     puts("9) The right syntax to move an obstacles x1y1>x2y2. For Example: P13>A21, Aa1>c45.");
     puts("10) If the player dosent want to play anymore he can input 'x' or 'X'");
     puts("11) For the player to win the game he must get to the minium board with is 10 x 10");
-    puts("12) 'L' is Leia, '@' are the Stormtroopers, 'X' are the obstacles, 'D' is Darth Vader and 'R' is R2D2\n\n\n");
-
+    puts("12) Leia can do up to 100 moves in the same input");
+    puts("13) 'L' is Leia, '@' are the Stormtroopers, 'X' are the obstacles, 'D' is Darth Vader and 'R' is R2D2\n\n\n");
     // Just a note, i put curly brackets in the if statements to make the code more readable 
     //and if someone need to fix something he dosent have to put them and make his life harder
 
