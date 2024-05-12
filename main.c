@@ -12,6 +12,8 @@
 #include <time.h>
 #include <ctype.h>
 
+#define MAX_SIZE 100
+
 // Where x and y the cordinates of the character/ obstacle (x,y) in the 2D array
 typedef struct stormtrooper
 {
@@ -74,12 +76,12 @@ int main(void)
     int i, n, m, diff = 2, storm = 2, obstacles, level = 1, len = 0, flag_l = 0, captured = 0, help = 0, force_limit = 0, flag_f = 0;
     int starting_m, staring_n;
     // "storm" is the amount of stormtroopers there are on the board, "obstacles" does the same job as "storm", i enter values to veriables to be sure
-    char **ship; // this is the 2D array used to play the game
+    char **ship = NULL; // this is the 2D array used to play the game
     char *moveset = NULL; // the moveset leia will perform in the game
     char *cords1, *cords2; // cords1 for the object the player wants to move and cords2 for the destination
     char choice, play_again = 'y', c; // c is for resetting buffer
-    stroop *army;
-    obs *objects; 
+    stroop *army = NULL;
+    obs *objects = NULL; 
     darth vader;
     princess leia; 
     r2d2 r2; 
@@ -746,39 +748,39 @@ int move_vader(char ***ship, darth *vader, int leia_x, int leia_y)
     {
         if(dy > 0)
         {
-            if((*ship)[vader -> x + 1][vader -> y + 1] != 'X' && (*ship)[vader -> x + 1][vader -> y + 1] != 'R' && (*ship)[vader -> x + 1][vader -> y + 1] != '@')
+            if((*ship)[vader -> x + 1][vader -> y + 1] != 'X' && (*ship)[vader -> x + 1][vader -> y + 1] != 'R' && (*ship)[vader -> x + 1][vader -> y + 1] != '@') // diagonal right down
             {
                 vader -> x++;
                 vader -> y++;
             }
-            else if((*ship)[vader -> x + 1][vader -> y] != 'X' && (*ship)[vader -> x + 1][vader -> y] != 'R' && (*ship)[vader -> x + 1][vader -> y] != '@')
+            else if((*ship)[vader -> x + 1][vader -> y] != 'X' && (*ship)[vader -> x + 1][vader -> y] != 'R' && (*ship)[vader -> x + 1][vader -> y] != '@') // right 
             {
                 vader -> x++;
             }
-            else if((*ship)[vader -> x][vader -> y + 1] != 'X' && (*ship)[vader -> x][vader -> y + 1] != 'R' && (*ship)[vader -> x][vader -> y + 1] != '@')
+            else if((*ship)[vader -> x][vader -> y + 1] != 'X' && (*ship)[vader -> x][vader -> y + 1] != 'R' && (*ship)[vader -> x][vader -> y + 1] != '@') // down
             {
                 vader -> y++;
             }
         }
         else if(dy < 0)
         {
-            if((*ship)[vader -> x + 1][vader -> y - 1] != 'X' && (*ship)[vader -> x + 1][vader -> y - 1] != 'R' && (*ship)[vader -> x + 1][vader -> y - 1] != '@')
+            if((*ship)[vader -> x + 1][vader -> y - 1] != 'X' && (*ship)[vader -> x + 1][vader -> y - 1] != 'R' && (*ship)[vader -> x + 1][vader -> y - 1] != '@') // diagonal right up
             {
                 vader -> x++;
                 vader -> y--;
             }
-            else if((*ship)[vader -> x + 1][vader -> y] != 'X' && (*ship)[vader -> x + 1][vader -> y] != 'R' && (*ship)[vader -> x + 1][vader -> y] != '@')
+            else if((*ship)[vader -> x + 1][vader -> y] != 'X' && (*ship)[vader -> x + 1][vader -> y] != 'R' && (*ship)[vader -> x + 1][vader -> y] != '@') // right
             {
                 vader -> x++;
             }
-            else if((*ship)[vader -> x][vader -> y - 1] != 'X' && (*ship)[vader -> x][vader -> y - 1] != 'R' && (*ship)[vader -> x][vader -> y - 1] != '@')
+            else if((*ship)[vader -> x][vader -> y - 1] != 'X' && (*ship)[vader -> x][vader -> y - 1] != 'R' && (*ship)[vader -> x][vader -> y - 1] != '@') // up
             {
                 vader -> y--;
             }
         }
         else
         {
-            if((*ship)[vader -> x + 1][vader -> y] != 'X' && (*ship)[vader -> x + 1][vader -> y] != 'R' && (*ship)[vader -> x + 1][vader -> y] != '@')
+            if((*ship)[vader -> x + 1][vader -> y] != 'X' && (*ship)[vader -> x + 1][vader -> y] != 'R' && (*ship)[vader -> x + 1][vader -> y] != '@') // right
             {
                 vader -> x++;
             }
@@ -788,39 +790,39 @@ int move_vader(char ***ship, darth *vader, int leia_x, int leia_y)
     {
         if(dy > 0)
         {
-            if((*ship)[vader -> x - 1][vader -> y + 1] != 'X' && (*ship)[vader -> x - 1][vader -> y + 1] != 'R' && (*ship)[vader -> x - 1][vader -> y + 1] != '@')
+            if((*ship)[vader -> x - 1][vader -> y + 1] != 'X' && (*ship)[vader -> x - 1][vader -> y + 1] != 'R' && (*ship)[vader -> x - 1][vader -> y + 1] != '@') // diagonal left down 
             {
                 vader -> x--;
                 vader -> y++;
             }
-            else if ((*ship)[vader -> x - 1][vader -> y] != 'X' && (*ship)[vader -> x - 1][vader -> y] != 'R' && (*ship)[vader -> x - 1][vader -> y] != '@')
+            else if ((*ship)[vader -> x - 1][vader -> y] != 'X' && (*ship)[vader -> x - 1][vader -> y] != 'R' && (*ship)[vader -> x - 1][vader -> y] != '@') // left
             {
                 vader -> x--;
             }
-            else if ((*ship)[vader -> x][vader -> y + 1] != 'X' && (*ship)[vader -> x][vader -> y + 1] != 'R' && (*ship)[vader -> x][vader -> y + 1] != '@')
+            else if ((*ship)[vader -> x][vader -> y + 1] != 'X' && (*ship)[vader -> x][vader -> y + 1] != 'R' && (*ship)[vader -> x][vader -> y + 1] != '@') // down
             {
                 vader -> y++;
             }
         }
         else if(dy < 0)
         {
-            if((*ship)[vader -> x - 1][vader -> y - 1] != 'X' && (*ship)[vader -> x - 1][vader -> y - 1] != 'R' && (*ship)[vader -> x - 1][vader -> y - 1] != '@')
+            if((*ship)[vader -> x - 1][vader -> y - 1] != 'X' && (*ship)[vader -> x - 1][vader -> y - 1] != 'R' && (*ship)[vader -> x - 1][vader -> y - 1] != '@') // diagonal left up
             {
                 vader -> x--;
                 vader -> y--;
             }
-            else if((*ship)[vader -> x - 1][vader -> y] != 'X' && (*ship)[vader -> x - 1][vader -> y] != 'R' && (*ship)[vader -> x - 1][vader -> y] != '@')
+            else if((*ship)[vader -> x - 1][vader -> y] != 'X' && (*ship)[vader -> x - 1][vader -> y] != 'R' && (*ship)[vader -> x - 1][vader -> y] != '@') // left
             {
                 vader -> x--;
             }
-            else if((*ship)[vader -> x][vader -> y - 1] != 'X' && (*ship)[vader -> x][vader -> y - 1] != 'R' && (*ship)[vader -> x][vader -> y - 1] != '@')
+            else if((*ship)[vader -> x][vader -> y - 1] != 'X' && (*ship)[vader -> x][vader -> y - 1] != 'R' && (*ship)[vader -> x][vader -> y - 1] != '@') // up
             {
                 vader -> y--;
             }
         }
         else
         {
-            if((*ship)[vader -> x - 1][vader -> y] != 'X' && (*ship)[vader -> x - 1][vader -> y] != 'R' && (*ship)[vader -> x - 1][vader -> y] != '@')
+            if((*ship)[vader -> x - 1][vader -> y] != 'X' && (*ship)[vader -> x - 1][vader -> y] != 'R' && (*ship)[vader -> x - 1][vader -> y] != '@') // left
             {
                 vader -> x--;
             }
@@ -830,14 +832,14 @@ int move_vader(char ***ship, darth *vader, int leia_x, int leia_y)
     {
         if(dy > 0)
         {
-            if((*ship)[vader -> x][vader -> y + 1] != 'X' && (*ship)[vader -> x][vader -> y + 1] != 'R' && (*ship)[vader -> x][vader -> y + 1] != '@')
+            if((*ship)[vader -> x][vader -> y + 1] != 'X' && (*ship)[vader -> x][vader -> y + 1] != 'R' && (*ship)[vader -> x][vader -> y + 1] != '@') // down
             {
                 vader -> y++;
             }
         }
         else if(dy < 0)
         {
-            if((*ship)[vader -> x][vader -> y - 1] != 'X' && (*ship)[vader -> x][vader -> y - 1] != 'R' && (*ship)[vader -> x][vader -> y - 1] != '@')
+            if((*ship)[vader -> x][vader -> y - 1] != 'X' && (*ship)[vader -> x][vader -> y - 1] != 'R' && (*ship)[vader -> x][vader -> y - 1] != '@') // up
             {
                 vader -> y--;
             }
@@ -953,14 +955,14 @@ void fill_board(char ***ship, int n, int m, r2d2 r2, stroop *army, int storm) //
 char read_input(char **token, char **token2, char **moveset, int *size, int *force_limit)
 {
     char choice;
-    char str[100] = {0};
+    char str[MAX_SIZE] = {0};
     char *test_token;
     int i, len;
 
     while(1)
     {
         printf("Enter your choice: "); 
-        len = read_text(str, 100, 1);
+        len = read_text(str, MAX_SIZE, 1);
 
         *token = strtok(str, ">"); // to see if the user inputed a force command
         if(*token != NULL)
@@ -1006,7 +1008,7 @@ char read_input(char **token, char **token2, char **moveset, int *size, int *for
             if(i == len) // checking if all went right
             {
                 *moveset = (char*) malloc(len * sizeof(char)); 
-                // i choose to do a malloc here so i}000000000000 can keep the dynamic theme and not send the static buffer
+                // i choose to do a malloc here so i can keep the dynamic theme and not send the static buffer
                 check_malloc(*moveset);
     
                 for(i = 0; i < len; i++)
